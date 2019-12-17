@@ -1,9 +1,11 @@
+import gameListeners from './socketio/gameListeners';
+import lobbyListeners from './socketio/lobbyListeners';
+
 const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const next = require('next');
 
-const gameListeners = require('./socketio/gameListeners');
 
 const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev });
@@ -12,13 +14,18 @@ const nextAppHandler = nextApp.getRequestHandler();
 
 const port = 3000;
 
-io.on('connection', (socket) => {
+const clients = {};
+
+io.on('connect', (socket) => {
   console.log(socket.id);
-  socket.emit('hello', {
+  socket.emit('test', {
     message: 'hi',
   });
 
-  gameListeners.gameListeners(socket);
+  lobbyListeners(socket);
+  gameListeners(socket);
+  console.log(io.sockets.clients());
+  console.log(io.sockets.adapter.rooms);
 });
 
 nextApp.prepare().then(() => {
