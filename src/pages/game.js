@@ -21,11 +21,12 @@ const Game = () => {
     app = new PIXI.Application({ width: 600, height: 600, transparent: false });
 
     canvasRef.current.appendChild(app.view);
-  });
+  }, []);
 
   const testSocket = () => {
     socket.emit('play', { data: 'hi' });
-  }
+  };
+  
   return (
     <div>
       in game
