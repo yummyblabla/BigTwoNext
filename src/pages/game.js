@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
-import * as PIXI from 'pixi.js';
+import dynamic from 'next/dynamic';
+// import * as PIXI from 'pixi.js';
 import { useSelector } from 'react-redux';
 
-
 import withRedux from '../redux/redux';
+
+const PixiComponent = dynamic(import('../components/PixiComponent'), { ssr: false });
 
 const Game = () => {
   const canvasRef = useRef(null);
@@ -14,13 +16,13 @@ const Game = () => {
   console.log(asdf);
 
   useEffect(() => {
-    socket = io();
-    socket.on('test', (data) => {
-      console.log(data);
-    });
-    app = new PIXI.Application({ width: 600, height: 600, transparent: false });
+    // socket = io();
+    // socket.on('test', (data) => {
+    //   console.log(data);
+    // });
+    // app = new PIXI.Application({ width: 600, height: 600, transparent: false });
 
-    canvasRef.current.appendChild(app.view);
+    // canvasRef.current.appendChild(app.view);
   }, []);
 
   const testSocket = () => {
@@ -31,7 +33,8 @@ const Game = () => {
     <div>
       in game
       <button onClick={testSocket}>Click me</button>
-      <div ref={canvasRef} />
+      {/* <div ref={canvasRef} /> */}
+      <PixiComponent />
     </div>
   );
 };

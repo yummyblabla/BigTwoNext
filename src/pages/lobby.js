@@ -7,6 +7,8 @@ import lobbyListeners from '../socketio/lobbyListeners';
 import withRedux from '../redux/redux';
 
 import CreateRoomModal from '../components/Modals/CreateRoom';
+import PlayerList from '../components/Lobby/PlayerList';
+import RoomList from '../components/Lobby/RoomList';
 
 let socket = null;
 
@@ -15,6 +17,7 @@ const Lobby = () => {
 
   const [players, setPlayers] = useState([]);
   const [rooms, setRooms] = useState([]);
+  const [openCreateRoomModal, setOpenCreateRoomModal] = useState(false);
 
   const fn = {
     setPlayers,
@@ -39,9 +42,12 @@ const Lobby = () => {
     socket.disconnect();
   };
 
-
   const createRoom = (roomDetails) => {
     socket.emit('userCreateRoom', roomDetails);
+  };
+
+  const handleOpenCreateRoomModal = () => {
+    setOpenCreateRoomModal(!openCreateRoomModal);
   };
 
   return (
@@ -50,28 +56,19 @@ const Lobby = () => {
       <Link href="/">
         <a>To Index</a>
       </Link>
+      <button onClick={disconnect}>Disconnect</button>
+      <button onClick={handleOpenCreateRoomModal}>Create room</button>
+
+      <RoomList rooms={rooms} />
+      <PlayerList players={players} />
+
+
       <CreateRoomModal
         createRoom={createRoom}
+        modalOpen={openCreateRoomModal}
+        onClose={handleOpenCreateRoomModal}
       />
-      
-      <button onClick={createRoom}>Create room</button>
-      <button onClick={disconnect}>Disconnect</button>
-      <h3>Rooms</h3>
-      {Object.keys(rooms).map((room) => {
-        return (
-          <div>
-            {rooms[room].roomName}
-          </div>
-        );
-      })}
-      <h3>Players</h3>
-      {Object.keys(players).map((player) => {
-        return (
-          <div key={players[player].id}>
-            {players[player].username}
-          </div>
-        );
-      })}
+
     </div>
   );
 };
