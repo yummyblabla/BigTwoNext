@@ -15,17 +15,28 @@ const nextAppHandler = nextApp.getRequestHandler();
 const port = 3000;
 
 const clients = {};
+const rooms = {};
 
-io.on('connect', (socket) => {
+const lobby = io.of('/lobby');
+const game = io.of('/game');
+
+lobby.on('connection', (socket) => {
+  lobbyListeners(lobby, socket, rooms, clients);
+  console.log('someone connected');
+});
+
+game.on('connection', (socket) => {
   console.log(socket.id);
   socket.emit('test', {
     message: 'hi',
   });
-
-  lobbyListeners(socket);
   gameListeners(socket);
-  console.log(io.sockets.clients());
-  console.log(io.sockets.adapter.rooms);
+  // console.log(io.sockets.clients());
+  // console.log(io.sockets.adapter.rooms);
+});
+
+io.on('connection', (socket) => {
+  console.log(lobby.adapter.rooms);
 });
 
 nextApp.prepare().then(() => {

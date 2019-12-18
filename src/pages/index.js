@@ -1,47 +1,39 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import Link from 'next/link';
-import io from 'socket.io-client';
+import { useSelector, useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 
 import withRedux from '../redux/redux';
 
 
 const Index = () => {
+  const router = useRouter();
   const [username, setUsername] = useState('');
 
-  let socket = null;
-  const connect = () => {
-    socket = io();
-  };
+  const dispatch = useDispatch();
 
-  const createRoom = () => {
-    socket.emit('createRoom', {
-      name: 'Room1',
-    });
-  }
+
+  const connect = (e) => {
+    e.preventDefault();
+    dispatch({ type: 'SET_USERNAME', username });
+    router.push('/lobby');
+  };
 
   return (
     <div>
-      <input value={username} onChange={(e) => setUsername(e.target.value)} />
-      <p>Hello Next.js</p>
-      <Link href="/game">
-        <a>To Game</a>
-      </Link>
-      <br />
-      <Link href="/lobby">
-        <a>To Lobby</a>
-      </Link>
-      <br />
+      <h1>Index Page</h1>
+
+      <form>
+        <label htmlFor="username">
+          Name:
+          <input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+        </label>
+        <input type="submit" value="Submit" onClick={connect} />
+      </form>
+      
       <button onClick={connect}>Connect</button>
-      <button onClick={createRoom}>Create room</button>
     </div>
   );
 };
-
-// Index.getInitialProps = ({ reduxStore }) => {
-//   const { dispatch } = reduxStore;
-//   return {};
-// }
 
 export default withRedux(Index);
