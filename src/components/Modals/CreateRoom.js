@@ -1,15 +1,25 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
+import { NUMBER_OF_PLAYERS, GAME_VERSIONS, CHINESE_VERSION } from '../../../modules/Helpers/Constants';
+
 const CreateRoom = ({
   createRoom,
   modalOpen,
+  onClose,
 }) => {
   const [roomName, setRoomName] = useState('');
   const [numberOfPlayers, setNumberOfPlayers] = useState(2);
-  const [gameVersion, setGameVersion] = useState('Chin');
+  const [gameVersion, setGameVersion] = useState(CHINESE_VERSION);
 
-  const handleClickRoom = () => {
+  const resetRoomState = () => {
+    setRoomName('');
+    setNumberOfPlayers(2);
+    setGameVersion(CHINESE_VERSION);
+  };
+
+  const handleClickRoom = (e) => {
+    e.preventDefault();
     createRoom({
       roomName,
       numberOfPlayers,
@@ -20,8 +30,34 @@ const CreateRoom = ({
   return (
     <div className={`modal ${modalOpen ? 'modal-open' : ''}`}>
       <div className="modal-content">
-        Something
-        <button onClick={handleClickRoom}>CreateRoom</button>
+        <button onClick={onClose}>Close</button>
+        <button onClick={resetRoomState}>Reset</button>
+        Create Room
+        <form>
+          <label htmlFor="roomName">
+            Room Name:
+            <input value={roomName} onChange={(e) => setRoomName(e.target.value)} />
+          </label>
+          <br />
+          <label htmlFor="numberOfPlayers">
+            Number of Players:
+            <select value={numberOfPlayers} onChange={(e) => setNumberOfPlayers(e.target.value)}>
+              {NUMBER_OF_PLAYERS.map((num) => (
+                <option value={num}>{num}</option>
+              ))}
+            </select>
+          </label>
+          <label htmlFor="bigTwoVersion">
+            Version:
+            <select value={gameVersion} onChange={(e) => setGameVersion(e.target.value)}>
+              {GAME_VERSIONS.map((version) => (
+                <option value={version}>{version}</option>
+              ))}
+            </select>
+          </label>
+          <br />
+          <input type="submit" value="Submit" onClick={handleClickRoom} />
+        </form>
       </div>
 
       <style jsx>
@@ -29,7 +65,6 @@ const CreateRoom = ({
           .modal {
             display: none; /* Hidden by default */
             position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
             left: 0;
             top: 0;
             width: 100%; /* Full width */
@@ -47,6 +82,7 @@ const CreateRoom = ({
             padding: 20px;
             border: 1px solid #888;
             width: 80%; /* Could be more or less, depending on screen size */
+            z-index: 10;
           }
         `}
       </style>
@@ -56,7 +92,8 @@ const CreateRoom = ({
 
 CreateRoom.propTypes = {
   createRoom: PropTypes.func.isRequired,
-  modalOpen: PropTypes.func.isRequired,
+  modalOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default CreateRoom;

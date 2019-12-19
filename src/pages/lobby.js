@@ -19,9 +19,14 @@ const Lobby = () => {
   const [rooms, setRooms] = useState([]);
   const [openCreateRoomModal, setOpenCreateRoomModal] = useState(false);
 
+  const handleCreateRoomSuccess = () => {
+    setOpenCreateRoomModal(false);
+  };
+
   const fn = {
     setPlayers,
     setRooms,
+    handleCreateRoomSuccess,
   };
 
   useEffect(() => {

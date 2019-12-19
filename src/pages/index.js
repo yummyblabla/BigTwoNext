@@ -30,7 +30,7 @@ const Index = () => {
         </label>
         <input type="submit" value="Submit" onClick={connect} />
       </form>
-      
+
       <button onClick={connect}>Connect</button>
     </div>
   );

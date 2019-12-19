@@ -9,4 +9,12 @@ export default function lobbyListeners(socket, fn) {
     // clients = { username: { username, id } }
     fn.setPlayers(clients);
   });
+
+  socket.on('duplicateRoomExists', ({ message }) => {
+    console.log(message);
+  });
+
+  socket.on('createRoomSuccess', ({}) => {
+    fn.handleCreateRoomSuccess();
+  });
 }
