@@ -1,16 +1,21 @@
 import PropTypes from 'prop-types';
 
 const RoomList = ({
-  rooms,
+  rooms, joinRoom,
 }) => {
   return (
     <>
       <h3>Rooms</h3>
       {Object.keys(rooms).map((room) => {
-        const { roomName, players, numberOfPlayers } = rooms[room];
+        const { roomName, players, maxPlayers } = rooms[room];
         return (
-          <div key={room} className="room" onClick={() => {}} aria-hidden="true">
-            <span>{`${roomName} [${players.length}/${numberOfPlayers}]`}</span>
+          <div
+            key={room}
+            className="room"
+            onClick={() => joinRoom(roomName)}
+            aria-hidden="true"
+          >
+            <span>{`${roomName} [${players.length}/${maxPlayers}]`}</span>
           </div>
         );
       })}
@@ -26,15 +31,14 @@ const RoomList = ({
 };
 
 RoomList.propTypes = {
-  rooms: PropTypes.arrayOf(
-    PropTypes.shape({
-      roomName: PropTypes.string,
-      players: PropTypes.arrayOf(
-        PropTypes.shape({}),
-      ),
-      numberOfPlayers: PropTypes.number,
-    }),
-  ).isRequired,
+  rooms: PropTypes.shape({
+    roomName: PropTypes.string,
+    players: PropTypes.arrayOf(
+      PropTypes.shape({}),
+    ),
+    numberOfPlayers: PropTypes.number,
+  }).isRequired,
+  joinRoom: PropTypes.func.isRequired,
 };
 
 export default RoomList;

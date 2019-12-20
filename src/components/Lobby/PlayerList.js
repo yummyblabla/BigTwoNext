@@ -8,8 +8,10 @@ const PlayerList = ({
       <h3>Players</h3>
       {Object.keys(players).map((player) => {
         return (
-          <div key={players[player].id}>
-            {players[player].username}
+          <div key={players[player].socketId}>
+            <span>
+              {`${players[player].username} - ${players[player].state}`}
+            </span>
           </div>
         );
       })}

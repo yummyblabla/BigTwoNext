@@ -1,20 +1,55 @@
 export default function lobbyListeners(socket, fn) {
-
+  /**
+   * Gets room list from socket.
+   */
   socket.on('getRoomList', ({ rooms }) => {
-    // rooms = { roomName: { roomName, numberOfPlayers, gameVersion, started, players } }
-    fn.setRooms(rooms);
+    fn.handleSetRooms(rooms);
   });
 
+  /**
+   * Gets lobby (player) list from socket.
+   */
   socket.on('getLobbyList', ({ clients }) => {
-    // clients = { username: { username, id } }
-    fn.setPlayers(clients);
+    fn.handleSetPlayers({ ...clients });
   });
 
+  /**
+   * Updates player status in lobby list.
+   */
+  socket.on('updatePlayerStatus', ({ socketId, state }) => {
+    fn.handleUpdatePlayerState(socketId, state);
+  });
+
+  /**
+   * Error handler for duplicate room name.
+   */
   socket.on('duplicateRoomExists', ({ message }) => {
-    console.log(message);
+    alert(message);
   });
 
-  socket.on('createRoomSuccess', ({}) => {
+  /**
+   * Success handler for room creation.
+   */
+  socket.on('createRoomSuccess', () => {
     fn.handleCreateRoomSuccess();
+  });
+
+  /**
+   * Error handler for join room error.
+   */
+  socket.on('joinRoomError', ({ message }) => {
+    alert(message);
+  });
+
+  socket.on('joinRoomSuccess', ({ room }) => {
+    fn.handleJoinRoomSuccess(room);
+  });
+
+  socket.on('leaveRoomSuccess', () => {
+    fn.handleLeaveRoomSuccess();
+  });
+
+  socket.on('updateRoomStatus', ({ room }) => {
+    fn.handleUpdateRoomStatus(room);
   });
 }

@@ -4,18 +4,18 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 
 import withRedux from '../redux/redux';
-
+import { setUsername } from '../redux/actionCreators';
 
 const Index = () => {
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const [username, set$Username] = useState('');
 
   const dispatch = useDispatch();
 
 
   const connect = (e) => {
     e.preventDefault();
-    dispatch({ type: 'SET_USERNAME', username });
+    dispatch(setUsername(username));
     router.push('/lobby');
   };
 
@@ -26,12 +26,12 @@ const Index = () => {
       <form>
         <label htmlFor="username">
           Name:
-          <input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <input id="username" type="text" value={username} onChange={(e) => set$Username(e.target.value)} />
         </label>
         <input type="submit" value="Submit" onClick={connect} />
       </form>
 
-      <button onClick={connect}>Connect</button>
+      <button type="button" onClick={connect}>Connect</button>
     </div>
   );
 };

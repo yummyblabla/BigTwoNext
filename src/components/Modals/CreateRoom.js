@@ -9,12 +9,12 @@ const CreateRoom = ({
   onClose,
 }) => {
   const [roomName, setRoomName] = useState('');
-  const [numberOfPlayers, setNumberOfPlayers] = useState(2);
+  const [maxPlayers, setMaxPlayers] = useState(4);
   const [gameVersion, setGameVersion] = useState(CHINESE_VERSION);
 
   const resetRoomState = () => {
     setRoomName('');
-    setNumberOfPlayers(2);
+    setMaxPlayers(4);
     setGameVersion(CHINESE_VERSION);
   };
 
@@ -22,7 +22,7 @@ const CreateRoom = ({
     e.preventDefault();
     createRoom({
       roomName,
-      numberOfPlayers,
+      maxPlayers,
       gameVersion,
     });
   };
@@ -30,8 +30,8 @@ const CreateRoom = ({
   return (
     <div className={`modal ${modalOpen ? 'modal-open' : ''}`}>
       <div className="modal-content">
-        <button onClick={onClose}>Close</button>
-        <button onClick={resetRoomState}>Reset</button>
+        <button type="button" onClick={onClose}>Close</button>
+        <button type="button" onClick={resetRoomState}>Reset</button>
         Create Room
         <form>
           <label htmlFor="roomName">
@@ -39,11 +39,11 @@ const CreateRoom = ({
             <input value={roomName} onChange={(e) => setRoomName(e.target.value)} />
           </label>
           <br />
-          <label htmlFor="numberOfPlayers">
+          <label htmlFor="maxPlayers">
             Number of Players:
-            <select value={numberOfPlayers} onChange={(e) => setNumberOfPlayers(e.target.value)}>
+            <select value={maxPlayers} onChange={(e) => setMaxPlayers(e.target.value)}>
               {NUMBER_OF_PLAYERS.map((num) => (
-                <option value={num}>{num}</option>
+                <option key={num } value={num}>{num}</option>
               ))}
             </select>
           </label>
@@ -51,7 +51,7 @@ const CreateRoom = ({
             Version:
             <select value={gameVersion} onChange={(e) => setGameVersion(e.target.value)}>
               {GAME_VERSIONS.map((version) => (
-                <option value={version}>{version}</option>
+                <option key={version} value={version}>{version}</option>
               ))}
             </select>
           </label>
