@@ -1,38 +1,31 @@
-import { useEffect, useRef } from 'react';
-import io from 'socket.io-client';
+import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
-// import * as PIXI from 'pixi.js';
 import { useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 
 import withRedux from '../redux/redux';
 
 const PixiComponent = dynamic(import('../components/PixiComponent'), { ssr: false });
 
 const Game = () => {
-  const canvasRef = useRef(null);
-  let socket = null;
-  let app = null;
-  const asdf = useSelector((state) => state);
-  console.log(asdf);
+  const router = useRouter();
+  const socket = useSelector((state) => state.socket);
+
+  const leaveGame = () => {
+    socket.emit('leaveGame', {
+      
+    });
+    router.push('/lobby');
+  }
 
   useEffect(() => {
-    // socket = io();
-    // socket.on('test', (data) => {
-    //   console.log(data);
-    // });
-    // app = new PIXI.Application({ width: 600, height: 600, transparent: false });
-
-    // canvasRef.current.appendChild(app.view);
+    
   }, []);
 
-  const testSocket = () => {
-    socket.emit('play', { data: 'hi' });
-  };
-  
   return (
     <div>
       in game
-      <button onClick={testSocket}>Click me</button>
+      <button onClick={leaveGame}>Leave Game</button>
       {/* <div ref={canvasRef} /> */}
       <PixiComponent />
     </div>

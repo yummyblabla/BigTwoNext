@@ -1,3 +1,5 @@
+export const SET_SOCKET = 'SET_SOCKET';
+
 export const SET_USERNAME = 'SET_USERNAME';
 export const SET_PLAYERS = 'SET_PLAYERS';
 

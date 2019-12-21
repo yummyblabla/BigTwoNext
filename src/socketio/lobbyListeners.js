@@ -52,4 +52,12 @@ export default function lobbyListeners(socket, fn) {
   socket.on('updateRoomStatus', ({ room }) => {
     fn.handleUpdateRoomStatus(room);
   });
+
+  socket.on('updateCurrentRoom', ({ room }) => {
+    fn.handleUpdateCurrentRoom(room);
+  });
+
+  socket.on('startGameSuccess', ({}) => {
+    fn.handleStartGameSuccess();
+  });
 }

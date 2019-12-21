@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
 
 import {
-  USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE
+  USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
 } from '../../modules/Helpers/Constants';
 import Room from '../../modules/Room';
 import PlayerLobby from '../../modules/PlayerLobby';
 
 
-export default function lobbyListeners(lobby, socket, rooms, clients) {
+export default function lobbyListeners(lobby, socket, io, rooms, clients) {
   /**
    * User Join Lobby.
    */
@@ -18,12 +18,12 @@ export default function lobbyListeners(lobby, socket, rooms, clients) {
 
     clients[socket.id] = new PlayerLobby(username, socket.id);
 
-    // Lobby gets Lobby List.
+    // Send lobby update of new lobby list
     lobby.emit('getLobbyList', {
       clients,
     });
 
-    // Current user gets Room List.
+    // Send socket room list
     socket.emit('getRoomList', {
       rooms,
     });
@@ -39,20 +39,23 @@ export default function lobbyListeners(lobby, socket, rooms, clients) {
       });
       return;
     }
-
-    const { username } = clients[socket.id];
+    const player = clients[socket.id];
 
     rooms[roomName] = new Room(
-      roomName, maxPlayers, gameVersion, username,
+      roomName, maxPlayers, gameVersion, player,
     );
 
+    // Join socket room
     socket.join(`room-${roomName}`);
-
+    player.joinRoom(roomName);
+    // Send create room success message
     socket.emit('createRoomSuccess', {});
+    // TODO: may bundle with createRoom success
+    // Send join room success message
     socket.emit('joinRoomSuccess', {
       room: rooms[roomName],
     });
-
+    // Send lobby update about player update
     lobby.emit('updatePlayerStatus', {
       socketId: socket.id,
       state: USER_IN_ROOM_STATE,
@@ -68,7 +71,21 @@ export default function lobbyListeners(lobby, socket, rooms, clients) {
    */
   socket.on('disconnect', () => {
     console.log('someone disconnected');
+    const player = clients[socket.id];
+    if (player.checkIfInRoom()) {
+      const roomName = player.getRoom();
+      const room = rooms[roomName];
+      room.removePlayer(player);
+
+      if (room.checkIfEmpty()) {
+        delete rooms[roomName];
+      }
+    }
+
     delete clients[socket.id];
+    lobby.emit('getLobbyList', {
+      clients,
+    });
   });
 
   /**
@@ -83,8 +100,7 @@ export default function lobbyListeners(lobby, socket, rooms, clients) {
     }
 
     const room = rooms[roomName];
-    const { username } = clients[socket.id];
-
+    const player = clients[socket.id];
     if (room.checkIfFull()) {
       socket.emit('joinRoomError', {
         message: 'Room is full.',
@@ -96,21 +112,37 @@ export default function lobbyListeners(lobby, socket, rooms, clients) {
       socket.emit('joinRoomError', {
         message: 'Room already started.',
       });
+      return;
     }
 
-    room.addPlayer(username);
+    if (player.checkIfInRoom()) {
+      socket.emit('joinRoomError', {
+        message: 'You are already in a room.',
+      });
+    }
 
-    // send msg to other players in same room
+    room.addPlayer(clients[socket.id]);
+    player.joinRoom(roomName);
 
+    // Join socket room
     socket.join(`room-${roomName}`);
+    // Send join room success message
     socket.emit('joinRoomSuccess', {
       room,
     });
+    // Send lobby update about player in room
     lobby.emit('updatePlayerStatus', {
       socketId: socket.id,
       state: USER_IN_ROOM_STATE,
     });
+    // Send lobby update about room update
     lobby.emit('updateRoomStatus', {
+      room,
+    });
+    // Send players in room update about room update
+    // TODO: This may be redundant
+    // if we can bundle with updateRoomStatus and handle check on clientside
+    lobby.to(`room-${roomName}`).emit('updateCurrentRoom', {
       room,
     });
   });
@@ -119,14 +151,57 @@ export default function lobbyListeners(lobby, socket, rooms, clients) {
    * Handles user leaving room.
    */
   socket.on('userLeaveRoom', ({ roomName }) => {
-    // remove user from room logic
+    const room = rooms[roomName];
+    const player = clients[socket.id];
+    room.removePlayer(player);
 
+    if (room.checkIfEmpty()) {
+      delete rooms[roomName];
+      // Send lobby update about new list of rooms
+      lobby.emit('getRoomList', {
+        rooms,
+      });
+    } else {
+      // Send lobby update about room update
+      lobby.emit('updateRoomStatus', {
+        room,
+      });
+    }
+    // Leave socket room
     socket.leave(`room-${roomName}`);
-
+    // Send leave room success message
     socket.emit('leaveRoomSuccess', {});
+    // Send lobby update about player update
     lobby.emit('updatePlayerStatus', {
       socketId: socket.id,
       state: USER_LOBBY_STATE,
+    });
+  });
+
+  socket.on('startGame', ({ roomName }) => {
+    const player = clients[socket.id];
+    const room = rooms[roomName];
+    if (room.hostName !== player.username) {
+      return;
+    }
+
+    if (!room.checkCanStart()) {
+      socket.emit('startGameError', {
+        message: 'Not enough players to start.',
+      });
+    }
+
+    lobby.to(`room-${roomName}`).emit('startGameSuccess', {});
+    lobby.in(`room-${roomName}`).clients((error, socketIds) => {
+      if (error) throw error;
+      socketIds.forEach((socketId) => {
+        const currSocket = io.sockets.connected[socketId];
+        currSocket.leave('/lobby');
+        lobby.emit('updatePlayerStatus', {
+          socketId,
+          state: USER_IN_GAME_STATE,
+        });
+      });
     });
   });
 }

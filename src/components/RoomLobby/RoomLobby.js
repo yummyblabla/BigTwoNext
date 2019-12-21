@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 const RoomLobby = ({
-  currentRoom, leaveRoom,
+  currentRoom, leaveRoom, startGame,
 }) => {
   const {
     roomName, maxPlayers, gameVersion, players,
@@ -14,10 +14,11 @@ const RoomLobby = ({
       <p>{maxPlayers}</p>
       <p>{gameVersion}</p>
       {players.map((player) => (
-        <p key={player}>
-          {player}
+        <p key={player.username}>
+          {player.username}
         </p>
       ))}
+      <button type="button" onClick={() => startGame(roomName)}>Start Game</button>
     </div>
   );
 };
@@ -28,10 +29,11 @@ RoomLobby.propTypes = {
     maxPlayers: PropTypes.number,
     gameVersion: PropTypes.string,
     players: PropTypes.arrayOf(
-      PropTypes.string,
+      PropTypes.shape({}),
     ),
   }).isRequired,
   leaveRoom: PropTypes.func.isRequired,
+  startGame: PropTypes.func.isRequired,
 };
 
 export default RoomLobby;

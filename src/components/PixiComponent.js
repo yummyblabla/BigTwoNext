@@ -1,13 +1,17 @@
 import * as PIXI from 'pixi.js';
 import { useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
+
 
 const PixiComponent = () => {
   const canvasRef = useRef(null);
+  const socket = useSelector((state) => state.socket);
+
   useEffect(() => {
     const app = new PIXI.Application({ width: 600, height: 600, transparent: false });
     canvasRef.current.appendChild(app.view);
 
-    var style = new PIXI.TextStyle({
+    const style = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: 36,
       fontStyle: 'italic',
@@ -23,7 +27,7 @@ const PixiComponent = () => {
       wordWrap: true,
       wordWrapWidth: 440
     });
-    var richText = new PIXI.Text('Rich text with a lot of options and across multiple lines', style);
+    const richText = new PIXI.Text('Rich text with a lot of options and across multiple lines', style);
     richText.x = 30;
     richText.y = 180;
 

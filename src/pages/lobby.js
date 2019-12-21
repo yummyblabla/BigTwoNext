@@ -6,19 +6,18 @@ import { useRouter } from 'next/router';
 import lobbyListeners from '../socketio/lobbyListeners';
 import withRedux from '../redux/redux';
 import {
-  setPlayers, updatePlayerStatus, changePlayerState, updateCurrentRoom, setRooms, updateRoomStatus,
+  setPlayers,
+  updatePlayerStatus,
+  changePlayerState, updateCurrentRoom, setRooms, updateRoomStatus, setSocket,
 } from '../redux/actionCreators';
 import {
-  USER_LOBBY_STATE, USER_IN_ROOM_STATE,
+  USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
 } from '../../modules/Helpers/Constants';
 
 import CreateRoomModal from '../components/Modals/CreateRoom';
 import PlayerList from '../components/Lobby/PlayerList';
 import RoomList from '../components/Lobby/RoomList';
 import RoomLobby from '../components/RoomLobby/RoomLobby';
-
-
-let socket = null;
 
 /**
  * Lobby Page.
@@ -31,6 +30,7 @@ const Lobby = () => {
   /**
    * States.
    */
+  const socket = useSelector((state) => state.socket);
   const username = useSelector((state) => state.username);
   const playerState = useSelector((state) => state.playerState);
   const players = useSelector((state) => state.players);
@@ -38,21 +38,48 @@ const Lobby = () => {
   const rooms = useSelector((state) => state.rooms);
   const [createRoomModal, setCreateRoomModal] = useState(false);
 
+  const handleStartGameSuccess = () => {
+    router.push('/game');
+  };
 
+  const handleStartGame = (roomName) => {
+    if (playerState !== USER_IN_ROOM_STATE) {
+      return;
+    }
+    socket.emit('startGame', {
+      roomName,
+    });
+  };
+
+  /**
+   * Updates the room in Room List Handler.
+   * @param {Object} room new room object.
+   */
   const handleUpdateRoomStatus = (room) => {
     dispatch(updateRoomStatus(room));
   };
 
+  /**
+   * Sets the rooms list in redux state.
+   * @param {Object} newRooms room list
+   */
   const handleSetRooms = (newRooms) => {
     dispatch(setRooms(newRooms));
   };
 
+  /**
+   * Attempts to leave room Handler.
+   * @param {string} roomName name of room
+   */
   const handleLeaveRoom = (roomName) => {
     socket.emit('userLeaveRoom', {
       roomName,
     });
   };
 
+  /**
+   * Leave Room Success Handler.
+   */
   const handleLeaveRoomSuccess = () => {
     dispatch(changePlayerState(USER_LOBBY_STATE));
     dispatch(updateCurrentRoom({}));
@@ -63,9 +90,20 @@ const Lobby = () => {
    * @param {string} roomName name of room
    */
   const handleJoinRoom = (roomName) => {
+    if (playerState === USER_IN_ROOM_STATE || playerState === USER_IN_GAME_STATE) {
+      return;
+    }
     socket.emit('userJoinRoom', {
       roomName,
     });
+  };
+
+  /**
+   * Updates the current room object Handler.
+   * @param {Object} room new room object
+   */
+  const handleUpdateCurrentRoom = (room) => {
+    dispatch(updateCurrentRoom(room));
   };
 
   /**
@@ -112,6 +150,9 @@ const Lobby = () => {
    * Open Create Room Modal Handler.
    */
   const handleOpenCreateRoomModal = () => {
+    if (playerState === USER_IN_ROOM_STATE || playerState === USER_IN_GAME_STATE) {
+      return;
+    }
     setCreateRoomModal(true);
   };
 
@@ -120,6 +161,9 @@ const Lobby = () => {
    * @param {Object} roomDetails room information
    */
   const handleCreateRoom = (roomDetails) => {
+    if (playerState === USER_IN_ROOM_STATE || playerState === USER_IN_GAME_STATE) {
+      return;
+    }
     socket.emit('userCreateRoom', roomDetails);
   };
 
@@ -140,18 +184,15 @@ const Lobby = () => {
     handleJoinRoomSuccess,
     handleLeaveRoomSuccess,
     handleUpdateRoomStatus,
+    handleUpdateCurrentRoom,
+    handleStartGameSuccess,
   };
 
   useEffect(() => {
-    socket = io('/lobby');
-    socket.emit('userJoinLobby', {
-      username,
-    });
-
-    lobbyListeners(socket, fn);
+    dispatch(setSocket(io(), fn, lobbyListeners));
 
     return function cleanup() {
-      socket.disconnect();
+      // socket.disconnect();
     };
   }, []);
 
@@ -178,6 +219,7 @@ const Lobby = () => {
         <RoomLobby
           currentRoom={currentRoom}
           leaveRoom={handleLeaveRoom}
+          startGame={handleStartGame}
         />
       )}
     </div>

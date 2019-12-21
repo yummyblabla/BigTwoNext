@@ -15,6 +15,17 @@ const initialState = {
   room: {},
 };
 
+const setSocket = (state, { socket, fn, lobbyListeners }) => {
+  lobbyListeners(socket, fn);
+  socket.emit('userJoinLobby', {
+    username: state.username,
+  });
+  return {
+    ...state,
+    socket,
+  };
+};
+
 const setUsername = (state, { username }) => ({
   ...state,
   username,
@@ -60,6 +71,7 @@ const setRooms = (state, { rooms }) => ({
 });
 
 const actionHandlers = {
+  [actions.SET_SOCKET]: setSocket,
   [actions.SET_USERNAME]: setUsername,
   [actions.SET_PLAYERS]: setPlayers,
   [actions.CHANGE_PLAYER_STATE]: changePlayerState,

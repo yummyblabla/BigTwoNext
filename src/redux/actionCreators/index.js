@@ -1,5 +1,14 @@
 import * as actions from '../actions';
 
+export const setSocket = (socket, fn, lobbyListeners) => ({
+  type: actions.SET_SOCKET,
+  payload: {
+    socket,
+    fn,
+    lobbyListeners,
+  },
+});
+
 export const setUsername = (username) => ({
   type: actions.SET_USERNAME,
   payload: {

@@ -3,7 +3,9 @@ import lobbyListeners from './socketio/lobbyListeners';
 
 const app = require('express')();
 const server = require('http').Server(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+  pingTimeout: 60000,
+});
 const next = require('next');
 
 
@@ -11,32 +13,18 @@ const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev });
 const nextAppHandler = nextApp.getRequestHandler();
 
-
 const port = 3000;
 
 const clients = {};
 const rooms = {};
 
-const lobby = io.of('/lobby');
-const game = io.of('/game');
-
-lobby.on('connection', (socket) => {
-  lobbyListeners(lobby, socket, rooms, clients);
-  console.log('someone connected');
-});
-
-game.on('connection', (socket) => {
-  console.log(socket.id);
-  socket.emit('test', {
-    message: 'hi',
-  });
-  gameListeners(socket);
-  // console.log(io.sockets.clients());
-  // console.log(io.sockets.adapter.rooms);
-});
+const lobby = io.to('/lobby');
 
 io.on('connection', (socket) => {
-  console.log(lobby.adapter.rooms);
+  socket.join('/lobby');
+  lobbyListeners(lobby, socket, io, rooms, clients);
+  gameListeners(socket);
+  console.log('someone connected');
 });
 
 nextApp.prepare().then(() => {
