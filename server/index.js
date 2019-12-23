@@ -17,6 +17,7 @@ const port = 3000;
 
 const clients = {};
 const rooms = {};
+const games = {};
 
 const lobby = io.to('/lobby');
 

@@ -4,7 +4,7 @@ import {
   USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
 } from '../../modules/Helpers/Constants';
 import Room from '../../modules/Room';
-import PlayerLobby from '../../modules/PlayerLobby';
+import PlayerLobby from '../../modules/Player';
 
 
 export default function lobbyListeners(lobby, socket, io, rooms, clients) {
@@ -72,7 +72,7 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients) {
   socket.on('disconnect', () => {
     console.log('someone disconnected');
     const player = clients[socket.id];
-    if (player.checkIfInRoom()) {
+    if (player && player.checkIfInRoom()) {
       const roomName = player.getRoom();
       const room = rooms[roomName];
       room.removePlayer(player);

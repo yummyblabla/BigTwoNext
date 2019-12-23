@@ -10,16 +10,23 @@ class PlayerLobby {
     this.currentRoom = null;
   }
 
+  getState() {
+    return this.state;
+  }
+
   getRoom() {
     return this.currentRoom;
   }
 
   leaveRoom() {
+    this.state = USER_LOBBY_STATE;
     this.currentRoom = null;
   }
 
   startedGame() {
-    this.state = USER_IN_GAME_STATE;
+    if (this.state === USER_IN_ROOM_STATE) {
+      this.state = USER_IN_GAME_STATE;
+    }
   }
 
   checkIfInRoom() {

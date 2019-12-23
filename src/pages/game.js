@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 
 import withRedux from '../redux/redux';
 
+
 const PixiComponent = dynamic(import('../components/PixiComponent'), { ssr: false });
 
 const Game = () => {
@@ -19,7 +20,6 @@ const Game = () => {
   }
 
   useEffect(() => {
-    
   }, []);
 
   return (
@@ -27,7 +27,9 @@ const Game = () => {
       in game
       <button onClick={leaveGame}>Leave Game</button>
       {/* <div ref={canvasRef} /> */}
-      <PixiComponent />
+      <PixiComponent
+        socket={socket}
+      />
     </div>
   );
 };

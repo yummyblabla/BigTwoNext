@@ -25,6 +25,9 @@ class Room {
   }
 
   addPlayer(playerObject) {
+    if (this.checkIfFull()) {
+      return;
+    }
     this.players.push(playerObject);
   }
 
@@ -32,6 +35,14 @@ class Room {
     const { socketId } = playerObject;
     const index = this.players.findIndex((player) => player.socketId === socketId);
     this.players.splice(index, 1);
+  }
+
+  getVersion() {
+    return this.gameVersion;
+  }
+
+  startGame() {
+    this.started = true;
   }
 }
 

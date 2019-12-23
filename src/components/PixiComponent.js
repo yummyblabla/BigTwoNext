@@ -1,11 +1,12 @@
 import * as PIXI from 'pixi.js';
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import io from 'socket.io-client';
 
-
+let socket;
 const PixiComponent = () => {
   const canvasRef = useRef(null);
-  const socket = useSelector((state) => state.socket);
+  // const socket = useSelector((state) => state.socket);
 
   useEffect(() => {
     const app = new PIXI.Application({ width: 600, height: 600, transparent: false });
@@ -32,7 +33,9 @@ const PixiComponent = () => {
     richText.y = 180;
 
     app.stage.addChild(richText);
+    socket = io('/game');
   }, []);
+
   return (
     <div ref={canvasRef} />
   );
