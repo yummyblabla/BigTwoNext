@@ -13,6 +13,14 @@ const initialState = {
   players: {},
   rooms: {},
   room: {},
+  game: null,
+};
+
+const setGame = (state, { game }) => {
+  return {
+    ...state,
+    game,
+  };
 };
 
 const setSocket = (state, { socket, fn, lobbyListeners }) => {
@@ -79,6 +87,7 @@ const actionHandlers = {
   [actions.UPDATE_CURRENT_ROOM]: updateCurrentRoom,
   [actions.UPDATE_ROOM_STATUS]: updateRoomStatus,
   [actions.SET_ROOMS]: setRooms,
+  [actions.SET_GAME]: setGame,
 };
 
 const reducer = (state = initialState, action) => {

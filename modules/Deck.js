@@ -16,19 +16,19 @@ const generateDeck = () => {
 
 class Deck {
   constructor() {
-    this.deck = generateDeck();
+    this.cards = generateDeck();
   }
 
-  getDeck() {
-    return this.deck;
+  getCards() {
+    return this.cards;
   }
 
   shuffle() {
-    for (let i = 0; i < this.deck.length; i += 1) {
+    for (let i = 0; i < this.cards.length; i += 1) {
       const rnd = Math.random() * i || 0;
-      [this.deck[i], this.deck[rnd]] = [this.deck[rnd], this.deck[i]];
+      [this.cards[i], this.cards[rnd]] = [this.cards[rnd], this.cards[i]];
     }
-    return this.deck;
+    return this.cards;
   }
 
   distribute() {

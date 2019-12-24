@@ -58,3 +58,10 @@ export const setRooms = (rooms) => ({
     rooms,
   },
 });
+
+export const setGame = (game) => ({
+  type: actions.SET_GAME,
+  payload: {
+    game,
+  },
+});

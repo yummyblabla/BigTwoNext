@@ -1,5 +1,6 @@
 import gameListeners from './socketio/gameListeners';
 import lobbyListeners from './socketio/lobbyListeners';
+import Game from '../modules/Game';
 
 const app = require('express')();
 const server = require('http').Server(app);
@@ -17,14 +18,14 @@ const port = 3000;
 
 const clients = {};
 const rooms = {};
-const games = {};
+const games = { game: new Game() };
 
 const lobby = io.to('/lobby');
 
 io.on('connection', (socket) => {
   socket.join('/lobby');
   lobbyListeners(lobby, socket, io, rooms, clients);
-  gameListeners(socket);
+  gameListeners(lobby, socket, rooms, clients, games);
   console.log('someone connected');
 });
 
