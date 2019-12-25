@@ -60,4 +60,8 @@ export default function lobbyListeners(socket, fn) {
   socket.on('startGameSuccess', ({}) => {
     fn.handleStartGameSuccess();
   });
+
+  socket.on('startGameError', ({ message }) => {
+    alert(message);
+  })
 }

@@ -40,22 +40,12 @@ const pushToImages = () => {
   });
 };
 
-const setUpContainers = () => {
-  playerContainer = new PIXI.Container();
-  playerContainer.interactive = true;
-  playerContainer.x = 50;
-  playerContainer.y = APP_HEIGHT - 175;
-  pixiApplication.stage.addChild(playerContainer);
-
-  const play = Render.generatePlayButton(resources, socket);
-  playerContainer.addChild(play);
-};
-
-
 const PixiComponent = () => {
   const dispatch = useDispatch();
   const canvasRef = useRef(null);
   const game = useSelector((state) => state.game);
+  const room = useSelector((state) => state.room);
+
   const [cards, setCards] = useState([]);
 
   // const socket = useSelector((state) => state.socket);
@@ -73,6 +63,17 @@ const PixiComponent = () => {
     sprites.forEach((sprite) => {
       playerContainer.addChild(sprite);
     });
+  };
+
+  const setUpContainers = () => {
+    playerContainer = new PIXI.Container();
+    playerContainer.interactive = true;
+    playerContainer.x = 50;
+    playerContainer.y = APP_HEIGHT - 175;
+    pixiApplication.stage.addChild(playerContainer);
+
+    const play = Render.generatePlayButton(resources, socket);
+    playerContainer.addChild(play);
   };
 
   const fn = {
@@ -99,7 +100,7 @@ const PixiComponent = () => {
       setUpContainers();
 
       socket.emit('getGame', {
-        roomName: 'game',
+        roomName: room.roomName,
       });
     }
 

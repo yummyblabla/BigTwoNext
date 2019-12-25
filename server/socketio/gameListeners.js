@@ -4,12 +4,12 @@ import Game from '../../modules/Game';
 
 export default function gameListeners(lobby, socket, rooms, clients, games) {
   socket.on('getGame', ({ roomName }) => {
-    games[roomName] = new Game();
+    games[roomName] = new Game(roomName, ['player']);
     const currentGame = games[roomName];
     socket.emit('setGame', {
       game: {
         roomName,
-        players: ['placeholder'],
+        players: ['player', 'player1', 'player2', 'player3'],
       },
     });
     currentGame.readyCounterIncrease();

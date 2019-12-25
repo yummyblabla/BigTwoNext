@@ -1,13 +1,15 @@
 import Deck from './Deck';
 
 class Game {
-  constructor(players) {
-    // this.players = players;
-    this.players = ['player', 'player1', 'player2', 'player3'];
+  constructor(roomName, players, gameVersion) {
+    this.players = players;
+    this.roomName = roomName;
+    this.gameVersion = gameVersion;
     this.deck = new Deck();
     this.readyStateCounter = 0;
     this.started = false;
     this.cardPiles = [];
+    this.currentPlay = null;
   }
 
   readyCounterIncrease() {

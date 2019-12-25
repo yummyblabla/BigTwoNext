@@ -13,6 +13,7 @@ export default function gameListeners(socket, fn) {
   });
 
   socket.on('receiveCards', ({ cards }) => {
+    console.log(cards);
     fn.handleReceiveCards(cards);
   });
 }

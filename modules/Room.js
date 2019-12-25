@@ -37,6 +37,10 @@ class Room {
     this.players.splice(index, 1);
   }
 
+  getPlayers() {
+    return this.players;
+  }
+
   getVersion() {
     return this.gameVersion;
   }

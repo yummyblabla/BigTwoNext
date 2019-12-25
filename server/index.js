@@ -24,7 +24,7 @@ const lobby = io.to('/lobby');
 
 io.on('connection', (socket) => {
   socket.join('/lobby');
-  lobbyListeners(lobby, socket, io, rooms, clients);
+  lobbyListeners(lobby, socket, io, rooms, clients, games);
   gameListeners(lobby, socket, rooms, clients, games);
   console.log('someone connected');
 });

@@ -5,9 +5,10 @@ import {
 } from '../../modules/Helpers/Constants';
 import Room from '../../modules/Room';
 import PlayerLobby from '../../modules/Player';
+import Game from '../../modules/Game';
 
 
-export default function lobbyListeners(lobby, socket, io, rooms, clients) {
+export default function lobbyListeners(lobby, socket, io, rooms, clients, games) {
   /**
    * User Join Lobby.
    */
@@ -189,8 +190,9 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients) {
       socket.emit('startGameError', {
         message: 'Not enough players to start.',
       });
+      // return;
     }
-
+    games[roomName] = new Game(roomName, room.getPlayers(), room.version);
     lobby.to(`room-${roomName}`).emit('startGameSuccess', {});
     lobby.in(`room-${roomName}`).clients((error, socketIds) => {
       if (error) throw error;
