@@ -6,6 +6,7 @@ import * as actions from './actions';
 import {
   USER_LOBBY_STATE,
 } from '../../modules/Helpers/Constants';
+import GameClient from '../../modules/GameClient';
 
 const initialState = {
   username: 'Guest',
@@ -14,12 +15,28 @@ const initialState = {
   rooms: {},
   room: {},
   game: null,
+  cards: [],
 };
 
-const setGame = (state, { game }) => {
+const setCards = (state, { cards }) => {
   return {
     ...state,
-    game,
+    cards,
+  };
+};
+
+const startGame = (state) => {
+  state.game.startGame();
+  return {
+    ...state,
+    game: state.game,
+  }
+};
+
+const setGame = (state, { roomName, players }) => {
+  return {
+    ...state,
+    game: new GameClient(roomName, players),
   };
 };
 
@@ -88,6 +105,8 @@ const actionHandlers = {
   [actions.UPDATE_ROOM_STATUS]: updateRoomStatus,
   [actions.SET_ROOMS]: setRooms,
   [actions.SET_GAME]: setGame,
+  [actions.START_GAME]: startGame,
+  [actions.SET_CARDS]: setCards,
 };
 
 const reducer = (state = initialState, action) => {

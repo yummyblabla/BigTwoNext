@@ -59,9 +59,22 @@ export const setRooms = (rooms) => ({
   },
 });
 
-export const setGame = (game) => ({
+export const setGame = ({ roomName, players }) => ({
   type: actions.SET_GAME,
   payload: {
-    game,
+    roomName,
+    players,
+  },
+});
+
+export const startGame = () => ({
+  type: actions.START_GAME,
+  payload: {},
+});
+
+export const setCards = (cards) => ({
+  type: actions.SET_CARDS,
+  payload: {
+    cards,
   },
 });

@@ -3,20 +3,32 @@
 import Game from '../../modules/Game';
 
 export default function gameListeners(lobby, socket, rooms, clients, games) {
+  socket.on('getGame', ({ roomName }) => {
+    games[roomName] = new Game();
+    const currentGame = games[roomName];
+    socket.emit('setGame', {
+      game: {
+        roomName,
+        players: ['placeholder'],
+      },
+    });
+    currentGame.readyCounterIncrease();
 
-
-  socket.on('creategame', ({}) => {
-    games['game'] = new Game();
-    console.log(games);
+    if (currentGame.getReadyCounter() === currentGame.getNumberOfPlayers()) {
+      currentGame.startGame();
+      // emit to all people in room
+      socket.emit('startGame', { roomName });
+    }
   });
 
-  socket.on('getGame', ({ roomName }) => {
-    socket.emit('setGame', {
-      game: games[roomName],
+  socket.on('getCards', ({ roomName }) => {
+    const currentGame = games[roomName];
+    socket.emit('receiveCards', {
+      cards: currentGame.getCards(0),
     });
   });
 
-  socket.on('getCards', ({}) => {
-    console.log('hi')
-  })
+  socket.on('sendCards', ({ cards }) => {
+    console.log(cards);
+  });
 }

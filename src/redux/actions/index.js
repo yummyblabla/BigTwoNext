@@ -11,3 +11,6 @@ export const UPDATE_ROOM_STATUS = 'UPDATE_ROOM_STATUS';
 export const UPDATE_CURRENT_ROOM = 'UPDATE_CURRENT_ROOM';
 
 export const SET_GAME = 'SET_GAME';
+export const START_GAME = 'START_GAME';
+
+export const SET_CARDS = 'SET_CARDS';

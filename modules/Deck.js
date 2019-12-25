@@ -25,7 +25,8 @@ class Deck {
 
   shuffle() {
     for (let i = 0; i < this.cards.length; i += 1) {
-      const rnd = Math.random() * i || 0;
+      // eslint-disable-next-line no-bitwise
+      const rnd = Math.random() * i | 0;
       [this.cards[i], this.cards[rnd]] = [this.cards[rnd], this.cards[i]];
     }
     return this.cards;

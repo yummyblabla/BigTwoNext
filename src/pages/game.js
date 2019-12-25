@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import withRedux from '../redux/redux';
 
 
-const PixiComponent = dynamic(import('../components/PixiComponent'), { ssr: false });
+const PixiComponent = dynamic(import('../components/Pixi/PixiComponent'), { ssr: false });
 
 const Game = () => {
   const router = useRouter();
