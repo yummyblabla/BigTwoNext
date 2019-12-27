@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import Game from '../../modules/Game';
+import PlayerLobby from '../../modules/Player';
 
 export default function gameListeners(lobby, socket, rooms, clients, games) {
   socket.on('getGame', ({ roomName }) => {
@@ -9,7 +10,7 @@ export default function gameListeners(lobby, socket, rooms, clients, games) {
     socket.emit('setGame', {
       game: {
         roomName,
-        players: ['player', 'player1', 'player2', 'player3'],
+        players: [new PlayerLobby('Guest', 'ASDF'), new PlayerLobby('Guest1', 'ASDF'), new PlayerLobby('Guest2', 'ASDF'), new PlayerLobby('Guest3', 'ASDF')],
       },
     });
     currentGame.readyCounterIncrease();

@@ -8,6 +8,14 @@ class GameClient {
   startGame() {
     this.started = true;
   }
+
+  getNumberOfPlayers() {
+    return this.players.length;
+  }
+
+  getPlayers() {
+    return this.players;
+  }
 }
 
 export default GameClient;

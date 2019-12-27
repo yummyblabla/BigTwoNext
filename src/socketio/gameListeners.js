@@ -6,14 +6,14 @@ export default function gameListeners(socket, fn) {
   socket.on('setGame', ({ game }) => {
     fn.handleSetGame(game);
   });
-
-  socket.on('startGame', ({ roomName }) => {
-    fn.handleStartGame();
-    socket.emit('getCards', { roomName });
-  });
-
   socket.on('receiveCards', ({ cards }) => {
-    console.log(cards);
     fn.handleReceiveCards(cards);
+  });
+}
+
+export function startGameListen(socket, cb) {
+  socket.on('startGame', ({ roomName }) => {
+    cb();
+    socket.emit('getCards', { roomName });
   });
 }

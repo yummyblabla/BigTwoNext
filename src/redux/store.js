@@ -30,7 +30,7 @@ const startGame = (state) => {
   return {
     ...state,
     game: state.game,
-  }
+  };
 };
 
 const setGame = (state, { roomName, players }) => {
