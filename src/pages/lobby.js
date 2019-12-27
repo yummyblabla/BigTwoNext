@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -6,9 +6,7 @@ import { useRouter } from 'next/router';
 import lobbyListeners from '../socketio/lobbyListeners';
 import withRedux from '../redux/redux';
 import {
-  setPlayers,
-  updatePlayerStatus,
-  changePlayerState, updateCurrentRoom, setRooms, updateRoomStatus, setSocket,
+  changePlayerState, updateCurrentRoom, setSocket,
 } from '../redux/actionCreators';
 import {
   USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
@@ -23,9 +21,15 @@ import RoomLobby from '../components/RoomLobby/RoomLobby';
  * Lobby Page.
  */
 const Lobby = () => {
+  function useStateRef(state) {
+    const stateRef = useRef(state);
+    useEffect(() => {
+      stateRef.current = state;
+    });
+    return stateRef;
+  }
   const router = useRouter();
   const dispatch = useDispatch();
-
 
   /**
    * States.
@@ -33,10 +37,14 @@ const Lobby = () => {
   const socket = useSelector((state) => state.socket);
   const username = useSelector((state) => state.username);
   const playerState = useSelector((state) => state.playerState);
-  const players = useSelector((state) => state.players);
   const currentRoom = useSelector((state) => state.room);
-  const rooms = useSelector((state) => state.rooms);
   const [createRoomModal, setCreateRoomModal] = useState(false);
+
+  const [players, setPlayers] = useState({});
+  const playersRef = useStateRef(players);
+
+  const [rooms, setRooms] = useState({});
+  const roomsRef = useStateRef(rooms);
 
   const handleStartGameSuccess = () => {
     router.push('/game');
@@ -56,7 +64,10 @@ const Lobby = () => {
    * @param {Object} room new room object.
    */
   const handleUpdateRoomStatus = (room) => {
-    dispatch(updateRoomStatus(room));
+    const newRooms = { ...roomsRef.current };
+    const { roomName } = room;
+    newRooms[roomName] = room;
+    setRooms(newRooms);
   };
 
   /**
@@ -64,7 +75,7 @@ const Lobby = () => {
    * @param {Object} newRooms room list
    */
   const handleSetRooms = (newRooms) => {
-    dispatch(setRooms(newRooms));
+    setRooms(newRooms);
   };
 
   /**
@@ -120,8 +131,10 @@ const Lobby = () => {
    * @param {string} socketId socket id of user.
    * @param {string} state state of the user.
    */
-  const handleUpdatePlayerState = (socketId, state) => {
-    dispatch(updatePlayerStatus(socketId, state));
+  const handleUpdatePlayerState = (socketId, $playerState) => {
+    const newPlayers = { ...playersRef.current };
+    newPlayers[socketId].state = $playerState;
+    setPlayers(newPlayers);
   };
 
   /**
@@ -129,7 +142,7 @@ const Lobby = () => {
    * @param {Object[]} newPlayers list of players logged in
    */
   const handleSetPlayers = (newPlayers) => {
-    dispatch(setPlayers(newPlayers));
+    setPlayers(newPlayers);
   };
 
   /**
