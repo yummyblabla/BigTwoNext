@@ -3,6 +3,7 @@ import Card from './Card';
 import {
   RANKS, SUITS_CHINESE,
 } from './Helpers/Constants';
+import Hand from './Hand';
 
 const generateDeck = () => {
   const deck = [];
@@ -32,13 +33,17 @@ class Deck {
     return this.cards;
   }
 
-  distribute() {
+  distribute(version) {
     const shuffledDeck = this.shuffle();
 
-    const pile1 = shuffledDeck.slice(0, 13);
-    const pile2 = shuffledDeck.slice(13, 26);
-    const pile3 = shuffledDeck.slice(26, 39);
-    const pile4 = shuffledDeck.slice(39, 52);
+    const pile1 = new Hand(shuffledDeck.slice(0, 13));
+    pile1.sortCards(version);
+    const pile2 = new Hand(shuffledDeck.slice(13, 26));
+    pile2.sortCards(version);
+    const pile3 = new Hand(shuffledDeck.slice(26, 39));
+    pile3.sortCards(version);
+    const pile4 = new Hand(shuffledDeck.slice(39, 52));
+    pile4.sortCards(version);
 
     return [pile1, pile2, pile3, pile4];
   }

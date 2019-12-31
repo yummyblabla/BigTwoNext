@@ -13,7 +13,7 @@ const binarySearch = (arrayOfCards, card, version) => {
   let end = arrayOfCards.length - 1;
   let middle = Math.floor((start + end) / 2);
 
-  while (arrayOfCards[middle].convertToString() !== card && start <= end) {
+  while (start <= end && arrayOfCards[middle].convertToString() !== card) {
     const cardFromArrayRank = RANKS.indexOf(arrayOfCards[middle].getRank());
     const cardToFindRank = RANKS.indexOf(card.substr(0, card.length - 1));
 
@@ -40,7 +40,7 @@ const binarySearch = (arrayOfCards, card, version) => {
     }
     middle = Math.floor((start + end) / 2);
   }
-  if (arrayOfCards[middle].convertToString() === card) {
+  if (middle >= 0 && arrayOfCards[middle].convertToString() === card) {
     return middle;
   }
   return -1;

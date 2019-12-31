@@ -7,7 +7,7 @@ test('New Deck', () => {
 });
 
 test('Deck - getDeck()', () => {
-  expect(deck.getDeck()).toEqual(new Deck().getDeck());
+  expect(deck.getCards()).toEqual(new Deck().getCards());
 });
 
 test('Deck - distribute()', () => {

@@ -23,7 +23,6 @@ const merge = (arr1, arr2, version) => {
     } else {
       let card1Suit;
       let card2Suit;
-
       if (version === VIET_VERSION) {
         card1Suit = SUITS_VIET.indexOf(card1.suit);
         card2Suit = SUITS_VIET.indexOf(card2.suit);

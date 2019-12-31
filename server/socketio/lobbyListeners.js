@@ -8,15 +8,16 @@ import PlayerLobby from '../../modules/Player';
 import Game from '../../modules/Game';
 
 
-export default function lobbyListeners(lobby, socket, io, rooms, clients, games) {
+export default function lobbyListeners(lobby, socket, io, rooms, clients, usernames, games) {
   /**
    * User Join Lobby.
    */
   socket.on('userJoinLobby', ({ username }) => {
+    socket.join('/lobby');
     if (username in clients) {
       return;
     }
-
+    usernames[username] = true;
     clients[socket.id] = new PlayerLobby(username, socket.id);
 
     // Send lobby update of new lobby list
@@ -35,7 +36,7 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, games)
    */
   socket.on('userCreateRoom', ({ roomName, maxPlayers, gameVersion }) => {
     if (rooms.hasOwnProperty(roomName)) {
-      socket.emit('duplicateRoomExists', {
+      socket.emit('createRoomError', {
         message: 'Duplicate room name exists.',
       });
       return;
@@ -75,11 +76,18 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, games)
     const player = clients[socket.id];
     if (player && player.checkIfInRoom()) {
       const roomName = player.getRoom();
-      const room = rooms[roomName];
-      room.removePlayer(player);
 
-      if (room.checkIfEmpty()) {
-        delete rooms[roomName];
+      const room = rooms[roomName];
+      if (room) {
+        room.removePlayer(player);
+
+        if (room.checkIfEmpty()) {
+          delete rooms[roomName];
+          lobby.emit('getRoomList', {
+            rooms,
+          });
+        }
+        delete usernames[player.getUsername()];
       }
     }
 
@@ -102,16 +110,17 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, games)
 
     const room = rooms[roomName];
     const player = clients[socket.id];
-    if (room.checkIfFull()) {
-      socket.emit('joinRoomError', {
-        message: 'Room is full.',
-      });
-      return;
-    }
 
     if (room.checkIfStarted()) {
       socket.emit('joinRoomError', {
         message: 'Room already started.',
+      });
+      return;
+    }
+
+    if (room.checkIfFull()) {
+      socket.emit('joinRoomError', {
+        message: 'Room is full.',
       });
       return;
     }
@@ -122,7 +131,7 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, games)
       });
     }
 
-    room.addPlayer(clients[socket.id]);
+    room.addPlayer(player);
     player.joinRoom(roomName);
 
     // Join socket room

@@ -12,6 +12,10 @@ class Hand {
     this.sorted = false;
   }
 
+  checkIfHandEmpty() {
+    return this.cards.length <= 0;
+  }
+
   getCards() {
     return this.cards;
   }

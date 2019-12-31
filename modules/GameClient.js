@@ -1,8 +1,14 @@
 class GameClient {
-  constructor(roomName, players) {
+  constructor(roomName, players, gameVersion) {
     this.roomName = roomName;
     this.players = players;
     this.started = false;
+    this.gameVersion = gameVersion;
+    this.playerTurn = -1;
+  }
+  
+  getGameVersion() {
+    return this.gameVersion;
   }
 
   startGame() {
@@ -15,6 +21,23 @@ class GameClient {
 
   getPlayers() {
     return this.players;
+  }
+
+  setPlayerTurn(index) {
+    this.playerTurn = index;
+  }
+
+  goToNextTurn() {
+    if (this.playerTurn === this.players.length - 1) {
+      this.playerTurn = 0;
+    } else {
+      this.playerTurn += 1;
+    }
+    return this.playerTurn;
+  }
+
+  getPlayerTurn() {
+    return this.playerTurn;
   }
 }
 

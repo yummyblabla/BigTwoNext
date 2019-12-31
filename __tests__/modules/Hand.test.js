@@ -5,6 +5,7 @@ import {
 } from '../../modules/Helpers/Constants';
 
 let hand;
+let hand2;
 const cards = [
   new Card('A', 'C'),
   new Card('2', 'D'),
@@ -23,8 +24,8 @@ const cards = [
 
 const cards2 = [
   new Card('3', 'C'),
-  new Card('5', 'D'),
-  new Card('6', 'S'),
+  new Card('4', 'D'),
+  new Card('4', 'H'),
   new Card('J', 'D'),
   new Card('10', 'H'),
   new Card('2', 'S'),
@@ -39,6 +40,7 @@ const cards2 = [
 
 beforeEach(() => {
   hand = new Hand(cards);
+  hand2 = new Hand(cards2);
 });
 
 test('Equivalent Hand', () => {
@@ -65,6 +67,25 @@ test('Hand - getNumberOfCards() (13)', () => {
 test('Hand - getNumberOfCards() (0)', () => {
   hand.setCards([]);
   expect(hand.getNumberOfCards()).toBe(0);
+});
+
+test('Hand - sortCards(Chinese)', () => {
+  hand2.sortCards(CHINESE_VERSION);
+  expect(hand2.getCards()).toEqual([
+    new Card('3', 'C'),
+    new Card('4', 'D'),
+    new Card('4', 'H'),
+    new Card('4', 'S'),
+    new Card('8', 'D'),
+    new Card('9', 'S'),
+    new Card('10', 'H'),
+    new Card('10', 'S'),
+    new Card('J', 'D'),
+    new Card('J', 'C'),
+    new Card('Q', 'C'),
+    new Card('K', 'D'),
+    new Card('2', 'S'),
+  ]);
 });
 
 test('Hand - sortCards(Chinese)', () => {

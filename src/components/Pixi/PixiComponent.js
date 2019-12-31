@@ -1,16 +1,15 @@
+import PropTypes from 'prop-types';
+
 import * as PIXI from 'pixi.js';
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import io from 'socket.io-client';
 
-import {
-  startGame,
-} from '../../redux/actionCreators';
-
-import gameListeners from '../../socketio/gameListeners';
 import * as Render from './Render';
 import * as GameVariables from '../Game/GameVariables';
+import search from '../../../modules/Helpers/Search';
 import GameClient from '../../../modules/GameClient';
+import Card from '../../../modules/Card';
 
 const APP_WIDTH = 800;
 const APP_HEIGHT = 600;
@@ -20,9 +19,23 @@ let socket;
 let resources;
 
 let playerContainer;
+let playerHandContainer;
 let opponentOneContainer;
+let opponentOneHandContainer;
 let opponentTwoContainer;
+let opponentTwoHandContainer;
 let opponentThreeContainer;
+let opponentThreeHandContainer;
+let playContainer;
+let playerTurnContainer;
+let opponentOneTurnContainer;
+let opponentTwoTurnContainer;
+let opponentThreeTurnContainer;
+let opponentOnePassContainer;
+let opponentTwoPassContainer;
+let opponentThreePassContainer;
+const turnContainers = [];
+const passContainers = [];
 
 const images = [];
 const pushToImages = () => {
@@ -39,20 +52,74 @@ const pushToImages = () => {
   }
   images.push({
     name: 'play',
-    url: '/Cards/play.png',
+    url: 'play.png',
   });
   images.push({
     name: 'redBack',
-    url: 'Cards/RED_BACK.svg',
+    url: '/Cards/RED_BACK.svg',
+  });
+  images.push({
+    name: 'turnIndicator',
+    url: 'turn.png',
+  });
+  images.push({
+    name: 'pass',
+    url: 'pass.png',
+  });
+  images.push({
+    name: 'playerPass',
+    url: 'playerPass.png',
   });
 };
 
+/**
+ * Resets the board to initial state.
+ * No Cards.
+ * No Turn Indicator.
+ */
+const resetBoard = () => {
+  opponentOneTurnContainer.visible = false;
+  opponentTwoTurnContainer.visible = false;
+  opponentThreeTurnContainer.visible = false;
+  playerTurnContainer.visible = false;
+
+  opponentOneHandContainer.removeChildren(0, opponentOneHandContainer.children.length);
+  opponentTwoHandContainer.removeChildren(0, opponentTwoHandContainer.children.length);
+  opponentThreeHandContainer.removeChildren(0, opponentThreeHandContainer.children.length);
+  playerHandContainer.removeChildren(0, playerHandContainer.children.length);
+  playContainer.removeChildren(0, playContainer.children.length);
+
+  while (turnContainers.length) {
+    turnContainers.pop();
+  }
+};
+
+/**
+ * Sets up the game.
+ * @param {*} game
+ * @param {*} username
+ */
 const setUpBoard = (game, username) => {
+  const indexOfFirstPlayer = game.getPlayerTurn();
   const numberOfPlayers = game.getNumberOfPlayers();
 
-  const containers = [opponentOneContainer, opponentTwoContainer, opponentThreeContainer];
+  const containers = [
+    opponentOneHandContainer, opponentTwoHandContainer, opponentThreeHandContainer,
+  ];
+  const tempTurnContainers = [
+    opponentOneTurnContainer, opponentTwoTurnContainer, opponentThreeTurnContainer,
+  ];
+  const tempPassContainers = [
+    opponentOnePassContainer, opponentTwoPassContainer, opponentThreePassContainer,
+  ]
+  turnContainers.push(playerTurnContainer);
   const indexOfPlayer = game.getPlayers().findIndex((player) => player.username === username);
   let startPoint = indexOfPlayer + 1;
+
+  if (indexOfFirstPlayer === indexOfPlayer) {
+    playerTurnContainer.visible = true;
+  }
+
   for (let i = 0; i < numberOfPlayers - 1; i += 1) {
     if (startPoint >= numberOfPlayers) {
       startPoint = 0;
@@ -61,98 +128,234 @@ const setUpBoard = (game, username) => {
     const style = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: 20,
+      fill: '#ffffff',
     });
     const text = new PIXI.Text(playerUsername, style);
+    text.y = -30;
     containers[i].addChild(text);
+    turnContainers.push(tempTurnContainers[i]);
+    Render.renderOpponentCards(containers[i], 13, resources);
+
+    if (indexOfFirstPlayer === startPoint) {
+      tempTurnContainers[i].visible = true;
+    }
+
     startPoint += 1;
   }
 };
 
-const PixiComponent = () => {
+const setUpContainers = (room) => {
+  playerContainer = new PIXI.Container();
+  playerContainer.x = 50;
+  playerContainer.y = APP_HEIGHT - 175;
+  pixiApplication.stage.addChild(playerContainer);
+  playerHandContainer = new PIXI.Container();
+  playerContainer.addChild(playerHandContainer);
+  playerTurnContainer = new PIXI.Container();
+  playerTurnContainer.x = -30;
+  playerContainer.addChild(playerTurnContainer);
+  Render.renderTurnIndicator(playerTurnContainer, resources);
+  playerTurnContainer.visible = false;
+
+  Render.renderPlayButton(playerContainer, resources, socket, room);
+  Render.renderPassButton(playerContainer, resources, socket, room);
+
+  opponentOneContainer = new PIXI.Container();
+  opponentOneContainer.x = 50;
+  opponentOneContainer.y = 50;
+  pixiApplication.stage.addChild(opponentOneContainer);
+  opponentOneHandContainer = new PIXI.Container();
+  opponentOneContainer.addChild(opponentOneHandContainer);
+  opponentOneTurnContainer = new PIXI.Container();
+  opponentOneTurnContainer.x = -30;
+  opponentOneContainer.addChild(opponentOneTurnContainer);
+  Render.renderTurnIndicator(opponentOneTurnContainer, resources);
+  opponentOneTurnContainer.visible = false;
+  opponentOnePassContainer = new PIXI.Container();
+  opponentOnePassContainer.y = 80;
+  opponentOneContainer.addChild(opponentOnePassContainer);
+  Render.renderPlayerPass(opponentOnePassContainer, resources);
+  opponentOnePassContainer.visible = true;
+
+  opponentTwoContainer = new PIXI.Container();
+  opponentTwoContainer.x = 300;
+  opponentTwoContainer.y = 50;
+  pixiApplication.stage.addChild(opponentTwoContainer);
+  opponentTwoHandContainer = new PIXI.Container();
+  opponentTwoContainer.addChild(opponentTwoHandContainer);
+  opponentTwoTurnContainer = new PIXI.Container();
+  opponentTwoTurnContainer.x = -30;
+  opponentTwoContainer.addChild(opponentTwoTurnContainer);
+  Render.renderTurnIndicator(opponentTwoTurnContainer, resources);
+  opponentTwoTurnContainer.visible = false;
+  opponentTwoPassContainer = new PIXI.Container();
+  opponentTwoPassContainer.y = 80;
+  opponentTwoContainer.addChild(opponentTwoPassContainer);
+  Render.renderPlayerPass(opponentTwoPassContainer, resources);
+  opponentTwoPassContainer.visible = true;
+
+  opponentThreeContainer = new PIXI.Container();
+  opponentThreeContainer.x = 550;
+  opponentThreeContainer.y = 50;
+  pixiApplication.stage.addChild(opponentThreeContainer);
+  opponentThreeHandContainer = new PIXI.Container();
+  opponentThreeContainer.addChild(opponentThreeHandContainer);
+  opponentThreeTurnContainer = new PIXI.Container();
+  opponentThreeTurnContainer.x = -30;
+  opponentThreeContainer.addChild(opponentThreeTurnContainer);
+  Render.renderTurnIndicator(opponentThreeTurnContainer, resources);
+  opponentThreeTurnContainer.visible = false;
+  opponentThreePassContainer = new PIXI.Container();
+  opponentThreePassContainer.y = 80;
+  opponentThreeContainer.addChild(opponentThreePassContainer);
+  Render.renderPlayerPass(opponentThreePassContainer, resources);
+  opponentThreePassContainer.visible = true;
+
+  playContainer = new PIXI.Container();
+  playContainer.x = 300;
+  playContainer.y = 200;
+  pixiApplication.stage.addChild(playContainer);
+};
+
+/**
+ * Pixi Component.
+ */
+const PixiComponent = ({
+  game, setGame, gameRef, setScore,
+}) => {
   function useStateRef(state) {
     const stateRef = useRef(state);
     useEffect(() => {
       stateRef.current = state;
-    });
+    }, [state]);
     return stateRef;
   }
 
   const dispatch = useDispatch();
   const canvasRef = useRef(null);
-  // const game = useSelector((state) => state.game);
   const room = useSelector((state) => state.room);
   const username = useSelector((state) => state.username);
 
   const [cards, setCards] = useState([]);
-  const [game, setGame] = useState(null);
-  const gameRef = useStateRef(game);
+  const cardsRef = useStateRef(cards);
 
-  // const socket = useSelector((state) => state.socket);
-  const handleSetGame = ({ roomName, players }) => {
-    setGame(new GameClient(roomName, players));
+  /**
+   * Handler for setting the game.
+   */
+  const handleSetGame = ({ game: $game }) => {
+    const {
+      roomName, players, gameVersion, scores,
+    } = $game;
+    setGame(new GameClient(roomName, players, gameVersion));
+    setScore(scores);
   };
 
-  const handleStartGame = (roomName) => {
-    setUpBoard(gameRef.current);
+  /**
+   * Handler for starting the game/round.
+   */
+  const handleStartGame = ({ roomName, indexOfFirstPlayer }) => {
+    resetBoard();
+    setGame((currentGame) => {
+      currentGame.setPlayerTurn(indexOfFirstPlayer);
+      setUpBoard(currentGame, username);
+      return currentGame;
+    });
     socket.emit('getCards', { roomName });
   };
 
-  const handleReceiveCards = ($cards) => {
-    setCards($cards);
-    const sprites = Render.generateCards($cards, resources);
-    sprites.forEach((sprite) => {
-      playerContainer.addChild(sprite);
+  /**
+   * Handler for receiving your initial cards.
+   */
+  const handleReceiveCards = ({ cards: $cards }) => {
+    const newCards = [];
+    $cards.forEach((card) => {
+      newCards.push(new Card(card.rank, card.suit));
+    });
+    setCards(newCards);
+    Render.renderPlayerHandCards(playerHandContainer, newCards, resources);
+  };
+
+  /**
+   * Helper function that toggles/renders turn indicator it's another player's turn.
+   */
+  const goToNextTurn = () => {
+    let index = turnContainers.findIndex((container) => container.visible);
+    turnContainers[index].visible = false;
+    index += 1;
+    if (index >= turnContainers.length) {
+      index = 0;
+    }
+    turnContainers[index].visible = true;
+    setGame((currentGame) => {
+      currentGame.goToNextTurn();
+      return currentGame;
     });
   };
 
-  const setUpContainers = () => {
-    playerContainer = new PIXI.Container();
-    playerContainer.interactive = true;
-    playerContainer.x = 50;
-    playerContainer.y = APP_HEIGHT - 175;
-    pixiApplication.stage.addChild(playerContainer);
+  /**
+   * Handler for validating player's play when it is their turn.
+   */
+  const handleValidPlay = ({ cards: $cards, passed }) => {
+    if (passed) {
+      return;
+    }
 
-    const play = Render.generatePlayButton(resources, socket);
-    playerContainer.addChild(play);
-
-    opponentOneContainer = new PIXI.Container();
-    opponentOneContainer.x = 50;
-    opponentOneContainer.y = 50;
-
-    const opponentOneCards = Render.generateOpponentCards(13, resources);
-    opponentOneCards.forEach((sprite) => {
-      opponentOneContainer.addChild(sprite);
-    });
-    pixiApplication.stage.addChild(opponentOneContainer);
-
-    opponentTwoContainer = new PIXI.Container();
-    opponentTwoContainer.x = 300;
-    opponentTwoContainer.y = 50;
-    const opponentTwoCards = Render.generateOpponentCards(13, resources);
-    opponentTwoCards.forEach((sprite) => {
-      opponentTwoContainer.addChild(sprite);
-    });
-    pixiApplication.stage.addChild(opponentTwoContainer);
-
-    opponentThreeContainer = new PIXI.Container();
-    opponentThreeContainer.x = 550;
-    opponentThreeContainer.y = 50;
-    const opponentThreeCards = Render.generateOpponentCards(13, resources);
-    opponentThreeCards.forEach((sprite) => {
-      opponentThreeContainer.addChild(sprite);
-    });
-    pixiApplication.stage.addChild(opponentThreeContainer);
+    if ($cards.length) {
+      while (GameVariables.selectedCards.length > 0) {
+        GameVariables.selectedCards.pop();
+      }
+      const newCards = [...cardsRef.current];
+      $cards.forEach((card) => {
+        const index = search(newCards, card, gameRef.current.getGameVersion());
+        if (index !== -1) {
+          newCards.splice(index, 1);
+        }
+      });
+      setCards(newCards);
+      Render.renderPlayerHandCards(playerHandContainer, newCards, resources);
+    } else {
+      alert('Invalid play');
+    }
   };
 
-  const fn = {
-    handleSetGame,
-    handleStartGame,
-    handleReceiveCards,
+  /**
+   * Handler for round ending.
+   */
+  const handleEndRound = ({ winner, scores }) => {
+    setScore(scores);
+    alert(`${winner} won the round.`)
+  };
+
+  /**
+   * Handler for when cards are played.
+   */
+  const handleCardsPlayed = ({ cards: $cards, passed }) => {
+    if (passed) {
+      goToNextTurn();
+      return;
+    }
+
+    Render.renderPlayedCards(playContainer, $cards, resources);
+    goToNextTurn();
+  };
+
+  /**
+   * Handler for receiving and updating score.
+   */
+  const handleUpdateScores = ({ scores }) => {
+    setScore(scores);
   };
 
   useEffect(() => {
     socket = io();
-    gameListeners(socket, fn);
+
+    socket.on('setGame', handleSetGame);
+    socket.on('startGame', handleStartGame);
+    socket.on('receiveCards', handleReceiveCards);
+    socket.on('validPlay', handleValidPlay);
+    socket.on('cardsPlayed', handleCardsPlayed);
+    socket.on('endRound', handleEndRound);
+    socket.on('updateScore', handleUpdateScores);
 
     pixiApplication = new PIXI.Application({
       width: APP_WIDTH,
@@ -164,10 +367,11 @@ const PixiComponent = () => {
     function setup(loader, $resources) {
       resources = $resources;
 
-      setUpContainers();
+      setUpContainers({ roomName: 'test' });
 
       socket.emit('getGame', {
-        roomName: room.roomName,
+        // roomName: room.roomName,
+        roomName: 'test',
       });
     }
 
@@ -175,11 +379,23 @@ const PixiComponent = () => {
     pixiApplication.loader
       .add(images)
       .load(setup);
+
+    return function cleanup() {
+
+    };
   }, []);
 
   return (
     <div ref={canvasRef} />
   );
+};
+
+
+PixiComponent.propTypes = {
+  game: PropTypes.shape({}).isRequired,
+  setGame: PropTypes.func.isRequired,
+  gameRef: PropTypes.shape({}).isRequired,
+  setScore: PropTypes.func.isRequired,
 };
 
 export default PixiComponent;

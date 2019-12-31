@@ -23,7 +23,7 @@ export default function lobbyListeners(socket, fn) {
   /**
    * Error handler for duplicate room name.
    */
-  socket.on('duplicateRoomExists', ({ message }) => {
+  socket.on('createRoomError', ({ message }) => {
     alert(message);
   });
 

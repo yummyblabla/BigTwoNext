@@ -16,20 +16,30 @@ const nextAppHandler = nextApp.getRequestHandler();
 
 const port = 3000;
 
+const usernames = {};
 const clients = {};
 const rooms = {};
-const games = { game: new Game() };
+const games = {};
 
 const lobby = io.to('/lobby');
 
 io.on('connection', (socket) => {
-  socket.join('/lobby');
-  lobbyListeners(lobby, socket, io, rooms, clients, games);
+  lobbyListeners(lobby, socket, io, rooms, clients, usernames, games);
   gameListeners(lobby, socket, rooms, clients, games);
   console.log('someone connected');
 });
 
 nextApp.prepare().then(() => {
+  app.get('/api/checkUserTaken', (req, res) => {
+    const { username } = req.query;
+    let found = false;
+    console.log(usernames);
+    if (usernames[username]) {
+      found = true;
+    }
+    return res.status(200).json({ userTaken: found });
+  });
+
   app.get('*', (req, res) => nextAppHandler(req, res));
 
   server.listen(port, (err) => {

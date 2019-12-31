@@ -37,11 +37,21 @@ export const addCardInteraction = (cardSprite) => {
   });
 };
 
-export const addPlayButtonInteraction = (sprite, socket) => {
+export const addPlayButtonInteraction = (sprite, socket, room) => {
   sprite.interactive = true;
   sprite.on('mousedown', () => {
     socket.emit('sendCards', {
       cards: selectedCards,
+      roomName: room.roomName,
+    });
+  });
+};
+
+export const addPassButtonInteraction = (sprite, socket, room) => {
+  sprite.interactive = true;
+  sprite.on('mousedown', () => {
+    socket.emit('passTurn', {
+      room: room.roomName,
     });
   });
 };

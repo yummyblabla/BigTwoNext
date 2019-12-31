@@ -2,12 +2,20 @@ import {
   USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
 } from './Helpers/Constants';
 
-class PlayerLobby {
+class Player {
   constructor(username, socketId) {
     this.username = username;
     this.socketId = socketId;
     this.state = USER_LOBBY_STATE;
     this.currentRoom = null;
+  }
+
+  getSocketId() {
+    return this.socketId;
+  }
+
+  getUsername() {
+    return this.username;
   }
 
   getState() {
@@ -40,4 +48,4 @@ class PlayerLobby {
   }
 }
 
-export default PlayerLobby;
+export default Player;

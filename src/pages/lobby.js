@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-import io from 'socket.io-client';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 
 import lobbyListeners from '../socketio/lobbyListeners';
 import withRedux from '../redux/redux';
 import {
-  changePlayerState, updateCurrentRoom, setSocket,
+  updateCurrentRoom,
 } from '../redux/actionCreators';
 import {
   USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
@@ -36,7 +35,7 @@ const Lobby = () => {
    */
   const socket = useSelector((state) => state.socket);
   const username = useSelector((state) => state.username);
-  const playerState = useSelector((state) => state.playerState);
+
   const currentRoom = useSelector((state) => state.room);
   const [createRoomModal, setCreateRoomModal] = useState(false);
 
@@ -45,6 +44,8 @@ const Lobby = () => {
 
   const [rooms, setRooms] = useState({});
   const roomsRef = useStateRef(rooms);
+
+  const [playerState, setPlayerState] = useState(USER_LOBBY_STATE);
 
   const handleStartGameSuccess = () => {
     router.push('/game');
@@ -92,7 +93,8 @@ const Lobby = () => {
    * Leave Room Success Handler.
    */
   const handleLeaveRoomSuccess = () => {
-    dispatch(changePlayerState(USER_LOBBY_STATE));
+    setPlayerState(USER_LOBBY_STATE);
+    // dispatch(changePlayerState(USER_LOBBY_STATE));
     dispatch(updateCurrentRoom({}));
   };
 
@@ -123,7 +125,8 @@ const Lobby = () => {
    */
   const handleJoinRoomSuccess = (room) => {
     dispatch(updateCurrentRoom(room));
-    dispatch(changePlayerState(USER_IN_ROOM_STATE));
+    setPlayerState(USER_IN_ROOM_STATE);
+    // dispatch(changePlayerState(USER_IN_ROOM_STATE));
   };
 
   /**
@@ -189,7 +192,6 @@ const Lobby = () => {
   };
 
   const fn = {
-    players,
     handleSetPlayers,
     handleSetRooms,
     handleCreateRoomSuccess,
@@ -202,25 +204,37 @@ const Lobby = () => {
   };
 
   useEffect(() => {
-    dispatch(setSocket(io(), fn, lobbyListeners));
+    if (socket === null) {
+      router.push('/');
+    } else {
+      lobbyListeners(socket, fn);
+      socket.emit('userJoinLobby', {
+        username,
+      });
+    }
 
     return function cleanup() {
-      // socket.disconnect();
+      // remove socket on listeners
     };
   }, []);
 
   return (
-    <div>
-      <h1>Lobby</h1>
+    <div className="container">
+      <p>Lobby</p>
+      <span>{username}</span>
 
-      <button type="button" onClick={disconnect}>Disconnect</button>
-      <button type="button" onClick={handleOpenCreateRoomModal}>Create room</button>
+      <div className="buttonContainer">
+        <button type="button" onClick={disconnect}>Disconnect</button>
+        <button type="button" onClick={handleOpenCreateRoomModal}>Create room</button>
+      </div>
 
-      <RoomList
-        rooms={rooms}
-        joinRoom={handleJoinRoom}
-      />
-      <PlayerList players={players} />
+      <div className="mainContainer">
+        <PlayerList players={players} />
+        <RoomList
+          rooms={rooms}
+          joinRoom={handleJoinRoom}
+        />
+      </div>
 
       <CreateRoomModal
         createRoom={handleCreateRoom}
@@ -233,8 +247,26 @@ const Lobby = () => {
           currentRoom={currentRoom}
           leaveRoom={handleLeaveRoom}
           startGame={handleStartGame}
+          username={username}
         />
       )}
+      <style jsx>
+        {`
+          .container {
+            display: flex;
+            flex-direction: column;
+          }
+          .buttonContainer {
+            display: flex;
+          }
+          .mainContainer {
+            display: flex;
+          }
+          p {
+            font-size: 2rem;
+          }
+        `}
+      </style>
     </div>
   );
 };

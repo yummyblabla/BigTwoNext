@@ -1,8 +1,5 @@
 export const SET_SOCKET = 'SET_SOCKET';
 
 export const SET_USERNAME = 'SET_USERNAME';
-export const SET_PLAYERS = 'SET_PLAYERS';
-
-export const CHANGE_PLAYER_STATE = 'CHANGE_PLAYER_STATE';
 
 export const UPDATE_CURRENT_ROOM = 'UPDATE_CURRENT_ROOM';

@@ -1,24 +1,37 @@
 import PropTypes from 'prop-types';
 
 const RoomLobby = ({
-  currentRoom, leaveRoom, startGame,
+  currentRoom, leaveRoom, startGame, username,
 }) => {
   const {
-    roomName, maxPlayers, gameVersion, players,
+    roomName, maxPlayers, gameVersion, players, hostName,
   } = currentRoom;
   return (
-    <div>
+    <div className="roomLobby">
       <h1>Room Lobby</h1>
-      <button type="button" onClick={() => leaveRoom(roomName)}>Leave</button>
-      <p>{roomName}</p>
+
+      <p>{`Room Name: ${roomName}`}</p>
       <p>{maxPlayers}</p>
-      <p>{gameVersion}</p>
+      <p>{`Game Version: ${gameVersion}`}</p>
       {players.map((player) => (
         <p key={player.username}>
           {player.username}
         </p>
       ))}
-      <button type="button" onClick={() => startGame(roomName)}>Start Game</button>
+      <div>
+        <button type="button" onClick={() => leaveRoom(roomName)}>Leave</button>
+        {hostName === username && (<button type="button" onClick={() => startGame(roomName)}>Start Game</button>)}
+      </div>
+
+      <style jsx>
+        {`
+          .roomLobby {
+            border: 1px solid black;
+            max-width: 600px;
+            margin-top: 30px;
+          }
+        `}
+      </style>
     </div>
   );
 };
@@ -31,7 +44,9 @@ RoomLobby.propTypes = {
     players: PropTypes.arrayOf(
       PropTypes.shape({}),
     ),
+    hostName: PropTypes.string,
   }).isRequired,
+  username: PropTypes.string.isRequired,
   leaveRoom: PropTypes.func.isRequired,
   startGame: PropTypes.func.isRequired,
 };

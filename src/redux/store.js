@@ -3,21 +3,13 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 
 import * as actions from './actions';
 
-import {
-  USER_LOBBY_STATE,
-} from '../../modules/Helpers/Constants';
-
 const initialState = {
   username: 'Guest',
-  playerState: USER_LOBBY_STATE,
   room: {},
+  socket: null,
 };
 
-const setSocket = (state, { socket, fn, lobbyListeners }) => {
-  lobbyListeners(socket, fn);
-  socket.emit('userJoinLobby', {
-    username: state.username,
-  });
+const setSocket = (state, { socket }) => {
   return {
     ...state,
     socket,
@@ -29,17 +21,6 @@ const setUsername = (state, { username }) => ({
   username,
 });
 
-const setPlayers = (state, { players }) => ({
-  ...state,
-  players,
-});
-
-const changePlayerState = (state, { playerState }) => ({
-  ...state,
-  playerState,
-});
-
-
 const updateCurrentRoom = (state, { room }) => ({
   ...state,
   room,
@@ -48,8 +29,6 @@ const updateCurrentRoom = (state, { room }) => ({
 const actionHandlers = {
   [actions.SET_SOCKET]: setSocket,
   [actions.SET_USERNAME]: setUsername,
-  [actions.SET_PLAYERS]: setPlayers,
-  [actions.CHANGE_PLAYER_STATE]: changePlayerState,
   [actions.UPDATE_CURRENT_ROOM]: updateCurrentRoom,
 };
 
