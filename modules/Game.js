@@ -16,22 +16,54 @@ class Game {
     this.playerTurn = 0;
     this.scores = {};
     this.lastWinner = null;
+    this.passCounter = 0;
 
     players.forEach((player) => {
       this.scores[player.username] = [0];
     });
   }
 
+  increasePassCounter() {
+    this.passCounter += 1;
+    if (this.passCounter >= this.players.length - 1) {
+      this.currentPlay = null;
+      this.passCounter = 0;
+    }
+  }
+
+  setCurrentPlay(cards) {
+    this.currentPlay = cards;
+  }
+
+  getCurrentPlay() {
+    return this.currentPlay;
+  }
+
   resetForNextRound() {
     this.updateScores();
     this.distributeCards();
+
+    const indexOfFirst = this.players.findIndex(
+      (player) => player.getUsername() === this.lastWinner,
+    );
+    this.playerTurn = indexOfFirst;
+    this.passCounter = 0;
+    this.currentPlay = null;
     this.started = false;
   }
 
   updateScores() {
     for (let i = 0; i < this.players.length; i += 1) {
-      const number = this.cardPiles[i].getNumberOfCards();
-      this.scores[this.players[i].username].push(number);
+      let number = this.cardPiles[i].getNumberOfCards();
+      if (number >= 10 && number <= 12) {
+        number *= 2;
+      }
+      if (number === 13) {
+        number += 3;
+      }
+      const playerScore = this.scores[this.players[i].username];
+      const previousScore = playerScore[playerScore.length - 1];
+      playerScore.push(previousScore + number);
     }
   }
 
@@ -89,6 +121,13 @@ class Game {
 
   getPlayerTurn() {
     return this.playerTurn;
+  }
+
+  goToNextTurn() {
+    this.playerTurn += 1;
+    if (this.playerTurn >= this.players.length) {
+      this.playerTurn = 0;
+    }
   }
 
   determineFirst() {

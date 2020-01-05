@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 
@@ -10,6 +11,7 @@ import {
 import {
   USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
 } from '../../modules/Helpers/Constants';
+import withStateRef from '../components/HOC/withStateRef';
 
 import CreateRoomModal from '../components/Modals/CreateRoom';
 import PlayerList from '../components/Lobby/PlayerList';
@@ -19,17 +21,9 @@ import RoomLobby from '../components/RoomLobby/RoomLobby';
 /**
  * Lobby Page.
  */
-const Lobby = () => {
-  function useStateRef(state) {
-    const stateRef = useRef(state);
-    useEffect(() => {
-      stateRef.current = state;
-    });
-    return stateRef;
-  }
+const Lobby = ({ useStateRef }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-
   /**
    * States.
    */
@@ -250,6 +244,14 @@ const Lobby = () => {
           username={username}
         />
       )}
+      <style jsx global>
+        {`
+          body {
+            margin: 0;
+            padding: 0;
+          }
+        `}
+      </style>
       <style jsx>
         {`
           .container {
@@ -271,4 +273,8 @@ const Lobby = () => {
   );
 };
 
-export default withRedux(Lobby);
+Lobby.propTypes = {
+  useStateRef: PropTypes.func.isRequired,
+};
+
+export default withRedux(withStateRef(Lobby));

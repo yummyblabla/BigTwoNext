@@ -9,13 +9,16 @@ import * as Render from './Render';
 import * as GameVariables from '../Game/GameVariables';
 import search from '../../../modules/Helpers/Search';
 import GameClient from '../../../modules/GameClient';
+import Opponent from '../../../modules/Opponent';
 import Card from '../../../modules/Card';
 
 const APP_WIDTH = 800;
 const APP_HEIGHT = 600;
 
 let pixiApplication;
-let socket;
+// TEST
+// let socket;
+//
 let resources;
 
 let playerContainer;
@@ -26,6 +29,7 @@ let opponentTwoContainer;
 let opponentTwoHandContainer;
 let opponentThreeContainer;
 let opponentThreeHandContainer;
+const opponentContainers = {};
 let playContainer;
 let playerTurnContainer;
 let opponentOneTurnContainer;
@@ -35,7 +39,6 @@ let opponentOnePassContainer;
 let opponentTwoPassContainer;
 let opponentThreePassContainer;
 const turnContainers = [];
-const passContainers = [];
 
 const images = [];
 const pushToImages = () => {
@@ -102,8 +105,12 @@ const resetBoard = () => {
 const setUpBoard = (game, username) => {
   const indexOfFirstPlayer = game.getPlayerTurn();
   const numberOfPlayers = game.getNumberOfPlayers();
+  const opponents = [];
 
   const containers = [
+    opponentOneContainer, opponentTwoContainer, opponentThreeContainer,
+  ];
+  const handContainers = [
     opponentOneHandContainer, opponentTwoHandContainer, opponentThreeHandContainer,
   ];
   const tempTurnContainers = [
@@ -111,7 +118,7 @@ const setUpBoard = (game, username) => {
   ];
   const tempPassContainers = [
     opponentOnePassContainer, opponentTwoPassContainer, opponentThreePassContainer,
-  ]
+  ];
   turnContainers.push(playerTurnContainer);
   const indexOfPlayer = game.getPlayers().findIndex((player) => player.username === username);
   let startPoint = indexOfPlayer + 1;
@@ -125,6 +132,7 @@ const setUpBoard = (game, username) => {
       startPoint = 0;
     }
     const { username: playerUsername } = game.getPlayers()[startPoint];
+    opponents.push(new Opponent(playerUsername));
     const style = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: 20,
@@ -134,17 +142,22 @@ const setUpBoard = (game, username) => {
     text.y = -30;
     containers[i].addChild(text);
     turnContainers.push(tempTurnContainers[i]);
-    Render.renderOpponentCards(containers[i], 13, resources);
+    Render.renderOpponentCards(handContainers[i], 13, resources);
 
     if (indexOfFirstPlayer === startPoint) {
       tempTurnContainers[i].visible = true;
     }
 
     startPoint += 1;
+    opponentContainers[playerUsername] = {
+      hand: handContainers[i],
+      pass: tempPassContainers[i],
+    };
   }
+  game.addOpponents(opponents);
 };
 
-const setUpContainers = (room) => {
+const setUpContainers = (room, socket) => {
   playerContainer = new PIXI.Container();
   playerContainer.x = 50;
   playerContainer.y = APP_HEIGHT - 175;
@@ -175,7 +188,7 @@ const setUpContainers = (room) => {
   opponentOnePassContainer.y = 80;
   opponentOneContainer.addChild(opponentOnePassContainer);
   Render.renderPlayerPass(opponentOnePassContainer, resources);
-  opponentOnePassContainer.visible = true;
+  opponentOnePassContainer.visible = false;
 
   opponentTwoContainer = new PIXI.Container();
   opponentTwoContainer.x = 300;
@@ -192,7 +205,7 @@ const setUpContainers = (room) => {
   opponentTwoPassContainer.y = 80;
   opponentTwoContainer.addChild(opponentTwoPassContainer);
   Render.renderPlayerPass(opponentTwoPassContainer, resources);
-  opponentTwoPassContainer.visible = true;
+  opponentTwoPassContainer.visible = false;
 
   opponentThreeContainer = new PIXI.Container();
   opponentThreeContainer.x = 550;
@@ -209,7 +222,7 @@ const setUpContainers = (room) => {
   opponentThreePassContainer.y = 80;
   opponentThreeContainer.addChild(opponentThreePassContainer);
   Render.renderPlayerPass(opponentThreePassContainer, resources);
-  opponentThreePassContainer.visible = true;
+  opponentThreePassContainer.visible = false;
 
   playContainer = new PIXI.Container();
   playContainer.x = 300;
@@ -221,7 +234,7 @@ const setUpContainers = (room) => {
  * Pixi Component.
  */
 const PixiComponent = ({
-  game, setGame, gameRef, setScore,
+  game, setGame, gameRef, setScore, socket,
 }) => {
   function useStateRef(state) {
     const stateRef = useRef(state);
@@ -329,7 +342,24 @@ const PixiComponent = ({
   /**
    * Handler for when cards are played.
    */
-  const handleCardsPlayed = ({ cards: $cards, passed }) => {
+  const handleCardsPlayed = ({ cards: $cards, passed, username: $username }) => {
+    if ($username !== username) {
+      opponentContainers[$username].pass.visible = false;
+      if (passed) {
+        opponentContainers[$username].pass.visible = true;
+        goToNextTurn();
+        return;
+      }
+      setGame((currentGame) => {
+        const opponent = currentGame.findOpponent($username);
+        opponent.decreaseCards($cards.length);
+
+        Render.renderOpponentCards(
+          opponentContainers[opponent.getUsername()].hand, opponent.getNumberOfCards(), resources,
+        );
+        return currentGame;
+      });
+    }
     if (passed) {
       goToNextTurn();
       return;
@@ -347,8 +377,9 @@ const PixiComponent = ({
   };
 
   useEffect(() => {
-    socket = io();
-
+    // // TEST
+    // socket = io();
+    // //
     socket.on('setGame', handleSetGame);
     socket.on('startGame', handleStartGame);
     socket.on('receiveCards', handleReceiveCards);
@@ -366,12 +397,16 @@ const PixiComponent = ({
 
     function setup(loader, $resources) {
       resources = $resources;
-
-      setUpContainers({ roomName: 'test' });
+      // // TEST
+      // setUpContainers({ roomName: 'test' });
+      // //
+      setUpContainers(room, socket);
 
       socket.emit('getGame', {
-        // roomName: room.roomName,
-        roomName: 'test',
+        roomName: room.roomName,
+        // // TEST
+        // roomName: 'test',
+        //
       });
     }
 

@@ -12,3 +12,9 @@ export const GAME_VERSIONS = [CHINESE_VERSION, VIET_VERSION];
 export const USER_LOBBY_STATE = 'In Lobby';
 export const USER_IN_ROOM_STATE = 'In Room';
 export const USER_IN_GAME_STATE = 'In Game';
+
+export const STRAIGHT_FLUSH_VALUE = 100;
+export const FOUR_OF_A_KIND_VALUE = 90;
+export const FULL_HOUSE_VALUE = 80;
+export const FLUSH_VALUE = 70;
+export const STRAIGHT_VALUE = 60;

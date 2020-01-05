@@ -51,7 +51,7 @@ export const addPassButtonInteraction = (sprite, socket, room) => {
   sprite.interactive = true;
   sprite.on('mousedown', () => {
     socket.emit('passTurn', {
-      room: room.roomName,
+      roomName: room.roomName,
     });
   });
 };

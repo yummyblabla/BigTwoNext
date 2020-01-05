@@ -42,6 +42,8 @@ export const renderPassButton = (container, resources, socket, room) => {
 };
 
 export const renderOpponentCards = (container, number, resources) => {
+  container.removeChildren(0, container.children.length);
+
   for (let i = 0; i < number; i += 1) {
     const sprite = new PIXI.Sprite(resources.redBack.texture);
     sprite.x = 0 + i * CARD_SEPARATION_OPPONENT;
@@ -80,4 +82,4 @@ export const renderPlayerPass = (container, resources) => {
   sprite.scale.x = 0.25;
   sprite.scale.y = 0.25;
   container.addChild(sprite);
-}
+};

@@ -1,5 +1,5 @@
 import {
-  CHINESE_VERSION, VIET_VERSION, RANKS, SUITS_CHINESE, SUITS_VIET,
+  CHINESE_VERSION, VIET_VERSION, RANKS, SUITS_CHINESE, SUITS_VIET, STRAIGHT_FLUSH_VALUE, FOUR_OF_A_KIND_VALUE, FULL_HOUSE_VALUE, FLUSH_VALUE, STRAIGHT_VALUE,
 } from './Helpers/Constants';
 
 const evaluateValidSingle = (cards) => {
@@ -93,64 +93,81 @@ const evaluateTriple = (cards, currentPlay) => {
 
 const isStraight = (cards) => {
   // TODO: need to incorporate A 2 3 4 5 and 2 3 4 5 straight
-	// need to block out J Q K A 2 straight
+  // need to block out J Q K A 2 straight
+  const valid = {
+    validStraight: false,
+    topStraight: null,
+  };
+
   const firstRank = RANKS.indexOf(cards[0].getRank());
 
   for (let i = 1; i < cards.length; i += 1) {
     const nextRank = RANKS.indexOf(cards[i].getRank());
 
     if (nextRank !== firstRank + i) {
-      return false;
+      return valid;
     }
   }
-  return true;
+  valid.validStraight = true;
+  valid.topStraight = cards[cards.length - 1];
+  return valid;
 };
 
 const isFlush = (cards) => {
   const firstSuit = cards[0].getSuit();
 
+  const valid = {
+    validFlush: false,
+    topFlush: null,
+  };
   for (let i = 1; i < cards.length; i += 1) {
     const nextCardSuit = cards[i].getSuit();
 
     if (nextCardSuit !== firstSuit) {
-      return false;
+      return valid;
     }
   }
-  return true;
+  valid.validFlush = true;
+  valid.topFlush = cards[cards.length - 1];
+  return valid;
 };
 
 const isFullHouse = (cards) => {
   const counter = {};
 
   cards.forEach((card, index) => {
-    counter[cards[index].getRank()] = (counter[cards[i].getRank()] || 0) + 1;
+    counter[cards[index].getRank()] = (counter[cards[index].getRank()] || 0) + 1;
   });
   let double = false;
   let triple = false;
+  let tripleRank = null;
   Object.keys(counter).forEach((rank) => {
     if (counter[rank] === 2) {
       double = true;
     }
     if (counter[rank] === 3) {
       triple = true;
+      tripleRank = rank;
     }
   });
-  return double && triple;
+  return { validFullHouse: double && triple, tripleRank };
 };
 
 const isFourOfAKind = (cards) => {
   const counter = {};
 
   cards.forEach((card, index) => {
-    counter[cards[index].getRank()] = (counter[cards[i].getRank()] || 0) + 1;
+    counter[cards[index].getRank()] = (counter[cards[index].getRank()] || 0) + 1;
   });
   let fours = false;
+  let foursRank = null;
   Object.keys(counter).forEach((rank) => {
     if (counter[rank] === 4) {
       fours = true;
+      foursRank = rank;
     }
   });
-  return fours;
+  return { validFours: fours, foursRank };
 };
 
 const evaluateFiveCardHandStrength = (cards) => {
@@ -158,45 +175,76 @@ const evaluateFiveCardHandStrength = (cards) => {
     return 0;
   }
 
-  const straight = isStraight(cards);
-  const flush = isFlush(cards);
-  const fullhouse = isFullHouse(cards);
-  const fours = isFourOfAKind(cards);
+  const { validStraight, topStraight } = isStraight(cards);
+  const { validFlush, topFlush } = isFlush(cards);
+  const { validFullHouse, tripleRank } = isFullHouse(cards);
+  const { validFours, foursRank } = isFourOfAKind(cards);
 
-  if (straight && flush) {
-    return 6;
+  if (validStraight && validFlush) {
+    return STRAIGHT_FLUSH_VALUE;
   }
-  if (fours) {
-    return 5;
+  if (validFours) {
+    return { value: FOUR_OF_A_KIND_VALUE, toCompare: foursRank };
   }
-  if (fullhouse) {
-    return 4;
+  if (validFullHouse) {
+    return { value: FULL_HOUSE_VALUE, toCompare: tripleRank };
   }
-  if (flush) {
-    return 3;
+  if (validFlush) {
+    return { value: FLUSH_VALUE, toCompare: topFlush };
   }
-  if (straight) {
-    return 2;
+  if (validStraight) {
+    return { value: STRAIGHT_VALUE, toCompare: topStraight };
   }
-  return 0;
+  return { value: 0 };
+};
+
+const compareCard = (cardToCompare, currentPlayToCompare, version) => {
+  if (typeof cardToCompare === 'number') {
+    return cardToCompare > currentPlayToCompare;
+  }
+  const cardRank = RANKS.indexOf(cardToCompare.getRank());
+  const playRank = RANKS.indexOf(currentPlayToCompare.getRank());
+
+  if (cardRank > playRank) {
+    return true;
+  }
+  if (cardRank < playRank) {
+    return false;
+  }
+
+  let cardSuit;
+  let playSuit;
+
+  if (version === CHINESE_VERSION) {
+    cardSuit = SUITS_CHINESE.indexOf(cardToCompare.getSuit());
+    playSuit = SUITS_CHINESE.indexOf(currentPlayToCompare.getSuit());
+  } else if (version === VIET_VERSION) {
+    cardSuit = SUITS_VIET.indexOf(cardToCompare.getSuit());
+    playSuit = SUITS_VIET.indexOf(currentPlayToCompare.getSuit());
+
+    return cardSuit > playSuit;
+  }
 };
 
 const evaluateFiveCardHand = (cards, currentPlay, version) => {
-  
-  const cardsStrength = evaluateFiveCardHandStrength(cards);
-  if (cardsStrength === 0) {
+  const { value: cardsValue, toCompare: cardsToCompare } = evaluateFiveCardHandStrength(cards);
+  if (cardsValue === 0) {
     return false;
   }
-  const currentPlayStrength = evaluateFiveCardHandStrength(currentPlay);
+  const { value: currentPlayValue, toCompare: currentPlayToCompare } = evaluateFiveCardHandStrength(currentPlay);
 
-  if (cardsStrength > currentPlayStrength) {
+  if (cardsValue > currentPlayValue) {
     return true;
   }
-  if (cardsStrength < currentPlayStrength) {
+  if (cardsValue < currentPlayValue) {
     return false;
   }
+  if (cardsValue === currentPlayValue) {
+    return compareCard(cardsToCompare, currentPlayToCompare, version);
+
+  }
   // TODO: evaluation of same hands
-  return false;
+  return true;
 };
 
 const evaluateCards = (cards, currentPlay, version) => {
@@ -210,7 +258,7 @@ const evaluateCards = (cards, currentPlay, version) => {
     return evaluateTriple(cards, currentPlay);
   }
   if (currentPlay.length === 5) {
-    evaluateFiveCardHand(cards, currentPlay, version);
+    return evaluateFiveCardHand(cards, currentPlay, version);
   }
   return true;
 };

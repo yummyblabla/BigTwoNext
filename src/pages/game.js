@@ -32,6 +32,9 @@ const Game = () => {
   }
 
   useEffect(() => {
+    if (socket === null) {
+      router.push('/');
+    }
   }, []);
   return (
     <div>

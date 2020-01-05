@@ -5,8 +5,17 @@ class GameClient {
     this.started = false;
     this.gameVersion = gameVersion;
     this.playerTurn = -1;
+    this.opponents = [];
   }
-  
+
+  findOpponent(username) {
+    return this.opponents.find((opponent) => opponent.getUsername() === username);
+  }
+
+  addOpponents(opponents) {
+    this.opponents = opponents;
+  }
+
   getGameVersion() {
     return this.gameVersion;
   }

@@ -201,7 +201,7 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
       });
       // return;
     }
-    games[roomName] = new Game(roomName, room.getPlayers(), room.version);
+    games[roomName] = new Game(roomName, room.getPlayers(), room.getVersion());
     lobby.to(`room-${roomName}`).emit('startGameSuccess', {});
     lobby.in(`room-${roomName}`).clients((error, socketIds) => {
       if (error) throw error;

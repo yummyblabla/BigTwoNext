@@ -2,33 +2,44 @@
 import { CHINESE_VERSION } from '../../modules/Helpers/Constants';
 import Game from '../../modules/Game';
 import PlayerLobby from '../../modules/Player';
+import Card from '../../modules/Card';
+import mergeSort from '../../modules/Helpers/Sorting';
+import evaluateCards from '../../modules/Evaluation';
 
-export default function gameListeners(lobby, socket, rooms, clients, games) {
+export default function gameListeners(lobby, socket, io, rooms, clients, games) {
   socket.on('getGame', ({ roomName }) => {
-    games[roomName] = new Game(
-      roomName,
-      [new PlayerLobby('Guest4', 'ASDF'), new PlayerLobby('Guest', socket.id), new PlayerLobby('Guest123', 'ASDF'), new PlayerLobby('Guestasd', 'ASDF')],
-      CHINESE_VERSION,
-    );
+    // // TEST
+    // games[roomName] = new Game(
+    //   roomName,
+    //   [new PlayerLobby('Guest4', 'ASDF'), new PlayerLobby('Guest', socket.id), new PlayerLobby('Guest123', 'ASDF'), new PlayerLobby('Guestasd', 'ASDF')],
+    //   CHINESE_VERSION,
+    // );
+    // //
+    const room = rooms[roomName];
     const currentGame = games[roomName];
     socket.emit('setGame', {
       game: {
         roomName,
-        players: [new PlayerLobby('Guest4', 'ASDF'), new PlayerLobby('Guest', 'ASDF'), new PlayerLobby('Guest123', 'ASDF'), new PlayerLobby('Guestasd', 'ASDF')],
+        // // TEST
+        // players: [new PlayerLobby('Guest4', 'ASDF'), new PlayerLobby('Guest', 'ASDF'), new PlayerLobby('Guest123', 'ASDF'), new PlayerLobby('Guestasd', 'ASDF')],
+        // //
+        players: room.getPlayers(),
         gameVersion: currentGame.getGameVersion(),
         scores: currentGame.getScores(),
       },
     });
     currentGame.readyCounterIncrease();
 
-    if (!(currentGame.getReadyCounter() === currentGame.getNumberOfPlayers())) {
+    if (currentGame.getReadyCounter() === currentGame.getNumberOfPlayers()) {
       currentGame.distributeCards();
       currentGame.startGame();
       currentGame.determineFirst();
 
       const indexOfFirstPlayer = currentGame.getPlayerTurn();
-      // emit to all people in room
-      socket.emit('startGame', { roomName, indexOfFirstPlayer });
+      // // TEST
+      // socket.emit('startGame', { roomName, indexOfFirstPlayer });
+      // //
+      io.to(`room-${roomName}`).emit('startGame', { roomName, indexOfFirstPlayer });
     }
   });
 
@@ -43,10 +54,33 @@ export default function gameListeners(lobby, socket, rooms, clients, games) {
   });
 
   socket.on('sendCards', ({ roomName, cards }) => {
+    const player = clients[socket.id];
     const currentGame = games[roomName];
     const index = currentGame.getPlayers().findIndex(
-      (player) => player.getSocketId() === socket.id,
+      ($player) => $player.getSocketId() === socket.id,
     );
+
+    if (currentGame.getPlayerTurn() !== index) {
+      return;
+    }
+
+    let cardClasses = [];
+    cards.forEach((card) => {
+      const rank = card.substr(0, card.length - 1);
+      const suit = card.substr(card.length - 1);
+      cardClasses.push(new Card(rank, suit));
+    });
+    cardClasses = mergeSort(cardClasses, currentGame.getGameVersion());
+
+    if (currentGame.getCurrentPlay() === null) {
+      currentGame.setCurrentPlay(cardClasses);
+    } else {
+      if (!evaluateCards(cardClasses, currentGame.getCurrentPlay(), currentGame.getGameVersion())) {
+        return;
+      }
+      currentGame.setCurrentPlay(cardClasses);
+    }
+
     const hand = currentGame.getCardPile(index);
     cards.forEach((card) => {
       const rank = card.substr(0, card.length - 1);
@@ -59,16 +93,28 @@ export default function gameListeners(lobby, socket, rooms, clients, games) {
       cards,
       passed: false,
     });
-    // emit to all people in room
-    socket.emit('cardsPlayed', {
-      cards,
+    // // TEST
+    // socket.emit('cardsPlayed', {
+    //   cards,
+    //   username: 'Guest123',
+    // });
+    // //
+    io.to(`room-${roomName}`).emit('cardsPlayed', {
+      cards, username: player.getUsername(),
     });
+
+    currentGame.goToNextTurn();
     if (hand.checkIfHandEmpty()) {
-      // emit to all people in room
       const { username } = currentGame.getPlayers()[index];
       currentGame.setLastWinner(username);
       currentGame.resetForNextRound();
-      socket.emit('endRound', {
+      // // TEST
+      // socket.emit('endRound', {
+      //   winner: username,
+      //   scores: currentGame.getScores(),
+      // });
+      // //
+      io.to(`room-${roomName}`).emit('endRound', {
         winner: username,
         scores: currentGame.getScores(),
       });
@@ -78,10 +124,15 @@ export default function gameListeners(lobby, socket, rooms, clients, games) {
         currentGame.startGame();
 
         const indexOfFirstPlayer = currentGame.getPlayers().findIndex(
-          (player) => player.getUsername() === currentGame.getLastWinner(),
+          ($player) => $player.getUsername() === currentGame.getLastWinner(),
         );
 
-        socket.emit('startGame', {
+        // // TEST
+        // socket.emit('startGame', {
+        //   roomName, indexOfFirstPlayer, players: currentGame.getPlayers(),
+        // });
+        // //
+        io.to(`room-${roomName}`).emit('startGame', {
           roomName, indexOfFirstPlayer, players: currentGame.getPlayers(),
         });
       }, 5000);
@@ -89,13 +140,38 @@ export default function gameListeners(lobby, socket, rooms, clients, games) {
   });
 
   socket.on('passTurn', ({ roomName }) => {
+    const player = clients[socket.id];
+    const currentGame = games[roomName];
+
+    const index = currentGame.getPlayers().findIndex(
+      ($player) => $player.getSocketId() === socket.id,
+    );
+
+    if (currentGame.getPlayerTurn() !== index) {
+      return;
+    }
+
+    currentGame.increasePassCounter();
+    currentGame.goToNextTurn();
+    console.log(currentGame);
+
     socket.emit('validPlay', {
       cards: [],
       passed: true,
     });
-    socket.emit('cardsPlayed', {
+
+    // // TEST
+    // socket.emit('cardsPlayed', {
+    //   cards: [],
+    //   passed: true,
+    //   username: 'Guest123',
+    // });
+    // //
+
+    io.to(`room-${roomName}`).emit('cardsPlayed', {
       cards: [],
       passed: true,
+      username: player.getUsername(),
     });
   });
 }
