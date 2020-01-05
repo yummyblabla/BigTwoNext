@@ -10,7 +10,7 @@ import {
 } from '../redux/actionCreators';
 import {
   USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
-} from '../../modules/Helpers/Constants';
+} from '../../server/modules/Helpers/Constants';
 import withStateRef from '../components/HOC/withStateRef';
 
 import CreateRoomModal from '../components/Modals/CreateRoom';

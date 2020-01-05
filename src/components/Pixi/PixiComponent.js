@@ -7,10 +7,10 @@ import io from 'socket.io-client';
 
 import * as Render from './Render';
 import * as GameVariables from '../Game/GameVariables';
-import search from '../../../modules/Helpers/Search';
-import GameClient from '../../../modules/GameClient';
-import Opponent from '../../../modules/Opponent';
-import Card from '../../../modules/Card';
+import search from '../../../server/modules/Helpers/Search';
+import GameClient from '../../../server/modules/GameClient';
+import Opponent from '../../../server/modules/Opponent';
+import Card from '../../../server/modules/Card';
 
 const APP_WIDTH = 800;
 const APP_HEIGHT = 600;

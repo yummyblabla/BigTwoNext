@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { NUMBER_OF_PLAYERS, GAME_VERSIONS, CHINESE_VERSION } from '../../../modules/Helpers/Constants';
+import { NUMBER_OF_PLAYERS, GAME_VERSIONS, CHINESE_VERSION } from '../../../server/modules/Helpers/Constants';
 
 const CreateRoom = ({
   createRoom,

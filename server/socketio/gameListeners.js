@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
-import { CHINESE_VERSION } from '../../modules/Helpers/Constants';
-import Game from '../../modules/Game';
-import PlayerLobby from '../../modules/Player';
-import Card from '../../modules/Card';
-import mergeSort from '../../modules/Helpers/Sorting';
-import evaluateCards from '../../modules/Evaluation';
+import { CHINESE_VERSION } from '../modules/Helpers/Constants';
+import Game from '../modules/Game';
+import PlayerLobby from '../modules/Player';
+import Card from '../modules/Card';
+import mergeSort from '../modules/Helpers/Sorting';
+import evaluateCards from '../modules/Evaluation';
 
 export default function gameListeners(lobby, socket, io, rooms, clients, games) {
   socket.on('getGame', ({ roomName }) => {

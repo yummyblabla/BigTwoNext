@@ -2,10 +2,10 @@
 
 import {
   USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
-} from '../../modules/Helpers/Constants';
-import Room from '../../modules/Room';
-import PlayerLobby from '../../modules/Player';
-import Game from '../../modules/Game';
+} from '../modules/Helpers/Constants';
+import Room from '../modules/Room';
+import PlayerLobby from '../modules/Player';
+import Game from '../modules/Game';
 
 
 export default function lobbyListeners(lobby, socket, io, rooms, clients, usernames, games) {
