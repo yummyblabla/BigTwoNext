@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 
-import lobbyListeners from '../socketio/lobbyListeners';
 import withRedux from '../redux/redux';
 import {
   updateCurrentRoom,
@@ -58,7 +57,7 @@ const Lobby = ({ useStateRef }) => {
    * Updates the room in Room List Handler.
    * @param {Object} room new room object.
    */
-  const handleUpdateRoomStatus = (room) => {
+  const handleUpdateRoomStatus = ({ room }) => {
     const newRooms = { ...roomsRef.current };
     const { roomName } = room;
     newRooms[roomName] = room;
@@ -69,7 +68,7 @@ const Lobby = ({ useStateRef }) => {
    * Sets the rooms list in redux state.
    * @param {Object} newRooms room list
    */
-  const handleSetRooms = (newRooms) => {
+  const handleSetRooms = ({ rooms: newRooms }) => {
     setRooms(newRooms);
   };
 
@@ -88,7 +87,6 @@ const Lobby = ({ useStateRef }) => {
    */
   const handleLeaveRoomSuccess = () => {
     setPlayerState(USER_LOBBY_STATE);
-    // dispatch(changePlayerState(USER_LOBBY_STATE));
     dispatch(updateCurrentRoom({}));
   };
 
@@ -109,7 +107,7 @@ const Lobby = ({ useStateRef }) => {
    * Updates the current room object Handler.
    * @param {Object} room new room object
    */
-  const handleUpdateCurrentRoom = (room) => {
+  const handleUpdateCurrentRoom = ({ room }) => {
     dispatch(updateCurrentRoom(room));
   };
 
@@ -117,10 +115,9 @@ const Lobby = ({ useStateRef }) => {
    * Join room Success Handler.
    * @param {Object} room room object
    */
-  const handleJoinRoomSuccess = (room) => {
+  const handleJoinRoomSuccess = ({ room }) => {
     dispatch(updateCurrentRoom(room));
     setPlayerState(USER_IN_ROOM_STATE);
-    // dispatch(changePlayerState(USER_IN_ROOM_STATE));
   };
 
   /**
@@ -128,9 +125,9 @@ const Lobby = ({ useStateRef }) => {
    * @param {string} socketId socket id of user.
    * @param {string} state state of the user.
    */
-  const handleUpdatePlayerState = (socketId, $playerState) => {
+  const handleUpdatePlayerState = ({ socketId, state }) => {
     const newPlayers = { ...playersRef.current };
-    newPlayers[socketId].state = $playerState;
+    newPlayers[socketId].state = state;
     setPlayers(newPlayers);
   };
 
@@ -138,7 +135,8 @@ const Lobby = ({ useStateRef }) => {
    * Sets list of players in redux state Handler.
    * @param {Object[]} newPlayers list of players logged in
    */
-  const handleSetPlayers = (newPlayers) => {
+  const handleSetPlayers = ({ clients }) => {
+    const newPlayers = { ...clients };
     setPlayers(newPlayers);
   };
 
@@ -185,30 +183,48 @@ const Lobby = ({ useStateRef }) => {
     router.push('/');
   };
 
-  const fn = {
-    handleSetPlayers,
-    handleSetRooms,
-    handleCreateRoomSuccess,
-    handleUpdatePlayerState,
-    handleJoinRoomSuccess,
-    handleLeaveRoomSuccess,
-    handleUpdateRoomStatus,
-    handleUpdateCurrentRoom,
-    handleStartGameSuccess,
-  };
-
   useEffect(() => {
     if (socket === null) {
       router.push('/');
     } else {
-      lobbyListeners(socket, fn);
+      socket.on('getLobbyList', handleSetPlayers);
+      socket.on('getRoomList', handleSetRooms);
+      socket.on('updatePlayerStatus', handleUpdatePlayerState);
+      socket.on('createRoomError', ({ message }) => {
+        alert(message);
+      });
+      socket.on('createRoomSuccess', handleCreateRoomSuccess);
+      socket.on('joinRoomError', ({ message }) => {
+        alert(message);
+      });
+      socket.on('joinRoomSuccess', handleJoinRoomSuccess);
+      socket.on('leaveRoomSuccess', handleLeaveRoomSuccess);
+      socket.on('updateRoomStatus', handleUpdateRoomStatus);
+      socket.on('updateCurrentRoom', handleUpdateCurrentRoom);
+      socket.on('startGameSuccess', handleStartGameSuccess);
+      socket.on('startGameError', ({ message }) => {
+        alert(message);
+      });
       socket.emit('userJoinLobby', {
         username,
       });
     }
 
+    
     return function cleanup() {
-      // remove socket on listeners
+      if (socket !== null) {
+        socket.off('getLobbyList');
+        socket.off('updatePlayerStatus');
+        socket.off('createRoomError');
+        socket.off('createRoomSuccess');
+        socket.off('joinRoomError');
+        socket.off('joinRoomSuccess');
+        socket.off('leaveRoomSuccess');
+        socket.off('updateRoomStatus');
+        socket.off('updateCurrentRoom');
+        socket.off('startGameSuccess');
+        socket.off('startGameError');
+      }
     };
   }, []);
 

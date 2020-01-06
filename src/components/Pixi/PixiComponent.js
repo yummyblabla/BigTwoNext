@@ -416,7 +416,13 @@ const PixiComponent = ({
       .load(setup);
 
     return function cleanup() {
-
+      socket.off('setGame');
+      socket.off('startGame');
+      socket.off('receiveCards');
+      socket.off('validPlay');
+      socket.off('cardsPlayed');
+      socket.off('endRound');
+      socket.off('updateScore');
     };
   }, []);
 

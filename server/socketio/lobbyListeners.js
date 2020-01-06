@@ -87,8 +87,8 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
             rooms,
           });
         }
-        delete usernames[player.getUsername()];
       }
+      delete usernames[player.getUsername()];
     }
 
     delete clients[socket.id];

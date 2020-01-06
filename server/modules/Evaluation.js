@@ -1,5 +1,10 @@
 import {
-  CHINESE_VERSION, VIET_VERSION, RANKS, SUITS_CHINESE, SUITS_VIET, STRAIGHT_FLUSH_VALUE, FOUR_OF_A_KIND_VALUE, FULL_HOUSE_VALUE, FLUSH_VALUE, STRAIGHT_VALUE,
+  CHINESE_VERSION,
+  VIET_VERSION,
+  RANKS,
+  SUITS_CHINESE,
+  SUITS_VIET,
+  STRAIGHT_FLUSH_VALUE, FOUR_OF_A_KIND_VALUE, FULL_HOUSE_VALUE, FLUSH_VALUE, STRAIGHT_VALUE,
 } from './Helpers/Constants';
 
 const evaluateValidSingle = (cards) => {
@@ -172,7 +177,7 @@ const isFourOfAKind = (cards) => {
 
 const evaluateFiveCardHandStrength = (cards) => {
   if (cards.length !== 5) {
-    return 0;
+    return { value: 0 };
   }
 
   const { validStraight, topStraight } = isStraight(cards);
@@ -248,6 +253,23 @@ const evaluateFiveCardHand = (cards, currentPlay, version) => {
 };
 
 const evaluateCards = (cards, currentPlay, version) => {
+  if (currentPlay === null) {
+    if (cards.length === 1) {
+      return evaluateValidSingle(cards);
+    }
+    if (cards.length === 2) {
+      return evaluateValidDouble(cards);
+    }
+    if (cards.length === 3) {
+      return evaluateValidTriple(cards);
+    }
+    if (cards.length === 5) {
+      const { value } = evaluateFiveCardHandStrength(cards);
+      return value > 0;
+    }
+    return false;
+  }
+
   if (currentPlay.length === 1) {
     return evaluateSingle(cards, currentPlay, version);
   }
@@ -260,7 +282,8 @@ const evaluateCards = (cards, currentPlay, version) => {
   if (currentPlay.length === 5) {
     return evaluateFiveCardHand(cards, currentPlay, version);
   }
-  return true;
+
+  return false;
 };
 
 export default evaluateCards;

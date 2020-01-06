@@ -32,7 +32,6 @@ nextApp.prepare().then(() => {
     const { username } = req.query;
     let found = false;
     let message = '';
-    console.log(usernames);
     if (username.length < 1) {
       found = true;
       message = 'Username too short. Choose another one.';

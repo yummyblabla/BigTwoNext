@@ -5,15 +5,18 @@ import { useState } from 'react';
 import io from 'socket.io-client';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-import fetch from 'isomorphic-unfetch';
 
 import withRedux from '../redux/redux';
 import { setUsername, setSocket } from '../redux/actionCreators';
+
+import IndexErrorModal from '../components/Modals/IndexErrorModal';
 
 
 const Index = () => {
   const router = useRouter();
   const [username, set$Username] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorModal, setErrorModal] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -23,7 +26,8 @@ const Index = () => {
       .then((response) => response.json())
       .then(({ userTaken, message }) => {
         if (userTaken) {
-          alert(message);
+          setErrorMessage(message);
+          setErrorModal(true);
         } else {
           dispatch(setSocket(io(), username));
           dispatch(setUsername(username));
@@ -50,6 +54,12 @@ const Index = () => {
         </form>
       </div>
 
+      <IndexErrorModal
+        errorModal={errorModal}
+        setErrorModal={setErrorModal}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
       <style jsx global>
         {`
           body {

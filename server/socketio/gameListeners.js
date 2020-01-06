@@ -72,14 +72,10 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
     });
     cardClasses = mergeSort(cardClasses, currentGame.getGameVersion());
 
-    if (currentGame.getCurrentPlay() === null) {
-      currentGame.setCurrentPlay(cardClasses);
-    } else {
-      if (!evaluateCards(cardClasses, currentGame.getCurrentPlay(), currentGame.getGameVersion())) {
-        return;
-      }
-      currentGame.setCurrentPlay(cardClasses);
+    if (!evaluateCards(cardClasses, currentGame.getCurrentPlay(), currentGame.getGameVersion())) {
+      return;
     }
+    currentGame.setCurrentPlay(cardClasses);
 
     const hand = currentGame.getCardPile(index);
     cards.forEach((card) => {
