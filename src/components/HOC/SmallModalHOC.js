@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useState } from 'react';
 
-const withModal = (WrappedComponent) => (props) => {
+const withSmallModal = (WrappedComponent) => (props) => {
   const [modalOpen, setModalOpen] = useState(false);
   return (
     <>
@@ -24,22 +24,39 @@ const withModal = (WrappedComponent) => (props) => {
             max-width: 630px;
             min-width: 320px;
             height: auto;
-            z-index: 2000;
+            z-index: 4000;
             visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            -moz-backface-visibility: hidden;
             backface-visibility: hidden;
+            -webkit-transform: translateX(-50%) translateY(-50%);
+            -moz-transform: translateX(-50%) translateY(-50%);
+            -ms-transform: translateX(-50%) translateY(-50%);
             transform: translateX(-50%) translateY(-50%);
           }
           .md-show {
             visibility: visible;
           }
           .md-content {
-            background-color: #fefefe;
-            margin: 15% auto; /* 15% from the top and centered */
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%; /* Could be more or less, depending on screen size */
-            z-index: 10;
+            -webkit-transform: scale(0.7);
+            -moz-transform: scale(0.7);
+            -ms-transform: scale(0.7);
+            transform: scale(0.7);
+            opacity: 0;
+            -webkit-transition: all 0.3s;
+            -moz-transition: all 0.3s;
             transition: all 0.3s;
+            background-color: #fefefe;
+            position: relative;
+            border-radius: 3px;
+            margin: 0 auto;
+          }
+          .md-show .md-content {
+            -webkit-transform: scale(1);
+            -moz-transform: scale(1);
+            -ms-transform: scale(1);
+            transform: scale(1);
+            opacity: 1;
           }
           .md-overlay {
             position: fixed;
@@ -48,7 +65,7 @@ const withModal = (WrappedComponent) => (props) => {
             visibility: hidden;
             top: 0;
             left: 0;
-            z-index: 1000;
+            z-index: 3000;
             opacity: 0;
             background-color: rgb(0,0,0); /* Fallback color */
             background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
@@ -65,4 +82,4 @@ const withModal = (WrappedComponent) => (props) => {
   );
 };
 
-export default withModal;
+export default withSmallModal;

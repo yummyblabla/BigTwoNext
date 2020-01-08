@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import ModalHOC from '../HOC/ModalHOC';
+import SmallModalHOC from '../HOC/SmallModalHOC';
 
-const LobbyErrorModal = ({
+const IndexErrorModal = ({
   setModalOpen, errorModal, setErrorModal, errorMessage, setErrorMessage,
 }) => {
   useEffect(() => {
@@ -19,18 +19,37 @@ const LobbyErrorModal = ({
   };
 
   return (
-    <div>
-      <button type="button" onClick={handleCloseModal}>
-        Close Modal
+    <div className="content">
+      <button className="closeButton" type="button" onClick={handleCloseModal}>
+        Close
       </button>
+      <h1>Attention!</h1>
       <p>
         {errorMessage}
       </p>
+
+      <style jsx>
+        {`
+          .closeButton {
+            position: absolute;
+            z-index: 1;
+            top: 10px;
+            right: 20px;
+            border: 1px solid black;
+            padding: 5px 10px;
+            font-size: 1.3rem;
+            cursor: pointer;
+          }
+          .content {
+            padding: 30px 20px;
+          }
+        `}
+      </style>
     </div>
   );
 };
 
-LobbyErrorModal.propTypes = {
+IndexErrorModal.propTypes = {
   setModalOpen: PropTypes.func.isRequired,
   errorModal: PropTypes.bool.isRequired,
   setErrorModal: PropTypes.func.isRequired,
@@ -38,4 +57,4 @@ LobbyErrorModal.propTypes = {
   setErrorMessage: PropTypes.func.isRequired,
 };
 
-export default ModalHOC(LobbyErrorModal);
+export default SmallModalHOC(IndexErrorModal);

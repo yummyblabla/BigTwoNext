@@ -13,7 +13,7 @@ import {
 import withStateRef from '../components/HOC/withStateRef';
 
 import CreateRoomModal from '../components/Modals/CreateRoom';
-import LobbyErrorModal from '../components/Modals/LobbyErrorModal';
+import ErrorModal from '../components/Modals/ErrorModal';
 import PlayerList from '../components/Lobby/PlayerList';
 import RoomList from '../components/Lobby/RoomList';
 import RoomLobby from '../components/RoomLobby/RoomLobby';
@@ -146,13 +146,6 @@ const Lobby = ({ useStateRef }) => {
   };
 
   /**
-   * Close Create Room Modal Handler.
-   */
-  const handleCloseCreateRoomModal = () => {
-    setCreateRoomModal(false);
-  };
-
-  /**
    * Open Create Room Modal Handler.
    */
   const handleOpenCreateRoomModal = () => {
@@ -241,8 +234,8 @@ const Lobby = ({ useStateRef }) => {
 
       <CreateRoomModal
         createRoom={handleCreateRoom}
-        modalOpen={createRoomModal}
-        onClose={handleCloseCreateRoomModal}
+        createRoomModal={createRoomModal}
+        setCreateRoomModal={setCreateRoomModal}
       />
 
       {playerState === USER_IN_ROOM_STATE && (
@@ -254,7 +247,7 @@ const Lobby = ({ useStateRef }) => {
         />
       )}
 
-      <LobbyErrorModal
+      <ErrorModal
         errorModal={errorModal}
         setErrorModal={setErrorModal}
         errorMessage={errorMessage}
@@ -265,6 +258,7 @@ const Lobby = ({ useStateRef }) => {
           body {
             margin: 0;
             padding: 0;
+            font-family: Arial;
           }
         `}
       </style>

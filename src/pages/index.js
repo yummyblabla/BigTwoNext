@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import withRedux from '../redux/redux';
 import { setUsername, setSocket } from '../redux/actionCreators';
 
-import IndexErrorModal from '../components/Modals/IndexErrorModal';
+import IndexErrorModal from '../components/Modals/ErrorModal';
 
 
 const Index = () => {
@@ -66,6 +66,7 @@ const Index = () => {
             margin: 0;
             padding: 0;
             background-color: #CDCDCD;
+            font-family: Arial;
           }
         `}
       </style>
