@@ -13,6 +13,7 @@ import {
 import withStateRef from '../components/HOC/withStateRef';
 
 import CreateRoomModal from '../components/Modals/CreateRoom';
+import LobbyErrorModal from '../components/Modals/LobbyErrorModal';
 import PlayerList from '../components/Lobby/PlayerList';
 import RoomList from '../components/Lobby/RoomList';
 import RoomLobby from '../components/RoomLobby/RoomLobby';
@@ -39,6 +40,9 @@ const Lobby = ({ useStateRef }) => {
   const roomsRef = useStateRef(rooms);
 
   const [playerState, setPlayerState] = useState(USER_LOBBY_STATE);
+
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorModal, setErrorModal] = useState(false);
 
   const handleStartGameSuccess = () => {
     router.push('/game');
@@ -116,6 +120,7 @@ const Lobby = ({ useStateRef }) => {
    * @param {Object} room room object
    */
   const handleJoinRoomSuccess = ({ room }) => {
+    setCreateRoomModal(false);
     dispatch(updateCurrentRoom(room));
     setPlayerState(USER_IN_ROOM_STATE);
   };
@@ -138,13 +143,6 @@ const Lobby = ({ useStateRef }) => {
   const handleSetPlayers = ({ clients }) => {
     const newPlayers = { ...clients };
     setPlayers(newPlayers);
-  };
-
-  /**
-   * Create Room Success Handler.
-   */
-  const handleCreateRoomSuccess = () => {
-    setCreateRoomModal(false);
   };
 
   /**
@@ -175,6 +173,11 @@ const Lobby = ({ useStateRef }) => {
     socket.emit('userCreateRoom', roomDetails);
   };
 
+  const handleLobbyError = ({ message }) => {
+    setErrorMessage(message);
+    setErrorModal(true);
+  }
+
   /**
    * Disconnects user from user and redirect to Index.
    */
@@ -190,40 +193,30 @@ const Lobby = ({ useStateRef }) => {
       socket.on('getLobbyList', handleSetPlayers);
       socket.on('getRoomList', handleSetRooms);
       socket.on('updatePlayerStatus', handleUpdatePlayerState);
-      socket.on('createRoomError', ({ message }) => {
-        alert(message);
-      });
-      socket.on('createRoomSuccess', handleCreateRoomSuccess);
-      socket.on('joinRoomError', ({ message }) => {
-        alert(message);
-      });
+      socket.on('lobbyError', handleLobbyError);
       socket.on('joinRoomSuccess', handleJoinRoomSuccess);
       socket.on('leaveRoomSuccess', handleLeaveRoomSuccess);
       socket.on('updateRoomStatus', handleUpdateRoomStatus);
       socket.on('updateCurrentRoom', handleUpdateCurrentRoom);
       socket.on('startGameSuccess', handleStartGameSuccess);
-      socket.on('startGameError', ({ message }) => {
-        alert(message);
-      });
+
       socket.emit('userJoinLobby', {
         username,
       });
     }
 
-    
+
     return function cleanup() {
       if (socket !== null) {
         socket.off('getLobbyList');
+        socket.off('getRoomList');
         socket.off('updatePlayerStatus');
-        socket.off('createRoomError');
-        socket.off('createRoomSuccess');
-        socket.off('joinRoomError');
+        socket.off('lobbyError');
         socket.off('joinRoomSuccess');
         socket.off('leaveRoomSuccess');
         socket.off('updateRoomStatus');
         socket.off('updateCurrentRoom');
         socket.off('startGameSuccess');
-        socket.off('startGameError');
       }
     };
   }, []);
@@ -260,6 +253,13 @@ const Lobby = ({ useStateRef }) => {
           username={username}
         />
       )}
+
+      <LobbyErrorModal
+        errorModal={errorModal}
+        setErrorModal={setErrorModal}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
       <style jsx global>
         {`
           body {

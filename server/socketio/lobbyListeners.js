@@ -4,7 +4,7 @@ import {
   USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
 } from '../modules/Helpers/Constants';
 import Room from '../modules/Room';
-import PlayerLobby from '../modules/Player';
+import Player from '../modules/Player';
 import Game from '../modules/Game';
 
 
@@ -14,11 +14,8 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
    */
   socket.on('userJoinLobby', ({ username }) => {
     socket.join('/lobby');
-    if (username in clients) {
-      return;
-    }
     usernames[username] = true;
-    clients[socket.id] = new PlayerLobby(username, socket.id);
+    clients[socket.id] = new Player(username, socket.id);
 
     // Send lobby update of new lobby list
     lobby.emit('getLobbyList', {
@@ -35,13 +32,30 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
    * Creating Room Handler.
    */
   socket.on('userCreateRoom', ({ roomName, maxPlayers, gameVersion }) => {
+    if (!clients.hasOwnProperty(socket.id)) {
+      return;
+    }
     if (rooms.hasOwnProperty(roomName)) {
-      socket.emit('createRoomError', {
+      socket.emit('lobbyError', {
         message: 'Duplicate room name exists.',
       });
       return;
     }
+
     const player = clients[socket.id];
+
+    if (roomName.length <= 0) {
+      socket.emit('lobbyError', {
+        message: 'Room name is too short.',
+      });
+      return;
+    }
+    if (roomName.length >= 8) {
+      socket.emit('lobbyError', {
+        message: 'Room name is too long.',
+      });
+      return;
+    }
 
     rooms[roomName] = new Room(
       roomName, maxPlayers, gameVersion, player,
@@ -50,10 +64,8 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
     // Join socket room
     socket.join(`room-${roomName}`);
     player.joinRoom(roomName);
-    // Send create room success message
-    socket.emit('createRoomSuccess', {});
-    // TODO: may bundle with createRoom success
-    // Send join room success message
+
+    // // Send join room success message
     socket.emit('joinRoomSuccess', {
       room: rooms[roomName],
     });
@@ -101,8 +113,11 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
    * Handles user attempt to join room.
    */
   socket.on('userJoinRoom', ({ roomName }) => {
+    if (!clients.hasOwnProperty(socket.id)) {
+      return;
+    }
     if (!rooms.hasOwnProperty(roomName)) {
-      socket.emit('joinRoomError', {
+      socket.emit('lobbyError', {
         message: 'Room does not exist.',
       });
       return;
@@ -112,23 +127,24 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
     const player = clients[socket.id];
 
     if (room.checkIfStarted()) {
-      socket.emit('joinRoomError', {
+      socket.emit('lobbyError', {
         message: 'Room already started.',
       });
       return;
     }
 
     if (room.checkIfFull()) {
-      socket.emit('joinRoomError', {
+      socket.emit('lobbyError', {
         message: 'Room is full.',
       });
       return;
     }
 
     if (player.checkIfInRoom()) {
-      socket.emit('joinRoomError', {
+      socket.emit('lobbyError', {
         message: 'You are already in a room.',
       });
+      return;
     }
 
     room.addPlayer(player);
@@ -161,6 +177,13 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
    * Handles user leaving room.
    */
   socket.on('userLeaveRoom', ({ roomName }) => {
+    if (!clients.hasOwnProperty(socket.id)) {
+      return;
+    }
+    if (!rooms.hasOwnProperty(roomName)) {
+      return;
+    }
+
     const room = rooms[roomName];
     const player = clients[socket.id];
     room.removePlayer(player);
