@@ -1,8 +1,8 @@
-import Room from '../../modules/Room';
-import Player from '../../modules/Player';
+import Room from '../../server/modules/Room';
+import Player from '../../server/modules/Player';
 import {
   CHINESE_VERSION,
-} from '../../modules/Helpers/Constants';
+} from '../../server/modules/Helpers/Constants';
 
 let room;
 

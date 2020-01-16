@@ -1,7 +1,7 @@
-import Player from '../../modules/Player';
+import Player from '../../server/modules/Player';
 import {
   USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
-} from '../../modules/Helpers/Constants';
+} from '../../server/modules/Helpers/Constants';
 
 let player;
 

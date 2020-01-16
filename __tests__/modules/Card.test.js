@@ -1,4 +1,4 @@
-import Card from '../../modules/Card';
+import Card from '../../server/modules/Card';
 
 let card;
 const rank = 'A';

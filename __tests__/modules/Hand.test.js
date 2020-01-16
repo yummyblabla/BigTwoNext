@@ -1,8 +1,8 @@
-import Hand from '../../modules/Hand';
-import Card from '../../modules/Card';
+import Hand from '../../server/modules/Hand';
+import Card from '../../server/modules/Card';
 import {
   CHINESE_VERSION, VIET_VERSION,
-} from '../../modules/Helpers/Constants';
+} from '../../server/modules/Helpers/Constants';
 
 let hand;
 let hand2;

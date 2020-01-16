@@ -73,14 +73,14 @@ const evaluateDouble = (cards, currentPlay, version) => {
     currentPlaySuit = SUITS_VIET.indexOf(currentPlay[1].getSuit());
     cardSuit = SUITS_VIET.indexOf(cards[1].getSuit());
   }
-  return cardSuit < currentPlaySuit;
+  return cardSuit > currentPlaySuit;
 };
 
 const evaluateValidTriple = (cards) => {
   if (cards.length !== 3) {
     return false;
   }
-  if (cards[0].getRank() !== cards[1].getRank() && cards[0].getRank() !== cards[2].getRank()) {
+  if (cards[0].getRank() !== cards[1].getRank() || cards[0].getRank() !== cards[2].getRank()) {
     return false;
   }
   return true;
@@ -186,7 +186,7 @@ const evaluateFiveCardHandStrength = (cards) => {
   const { validFours, foursRank } = isFourOfAKind(cards);
 
   if (validStraight && validFlush) {
-    return STRAIGHT_FLUSH_VALUE;
+    return { value: STRAIGHT_FLUSH_VALUE, toCompare: cards[4] };
   }
   if (validFours) {
     return { value: FOUR_OF_A_KIND_VALUE, toCompare: foursRank };
@@ -226,9 +226,8 @@ const compareCard = (cardToCompare, currentPlayToCompare, version) => {
   } else if (version === VIET_VERSION) {
     cardSuit = SUITS_VIET.indexOf(cardToCompare.getSuit());
     playSuit = SUITS_VIET.indexOf(currentPlayToCompare.getSuit());
-
-    return cardSuit > playSuit;
   }
+  return cardSuit > playSuit;
 };
 
 const evaluateFiveCardHand = (cards, currentPlay, version) => {
@@ -236,7 +235,10 @@ const evaluateFiveCardHand = (cards, currentPlay, version) => {
   if (cardsValue === 0) {
     return false;
   }
-  const { value: currentPlayValue, toCompare: currentPlayToCompare } = evaluateFiveCardHandStrength(currentPlay);
+  const {
+    value: currentPlayValue,
+    toCompare: currentPlayToCompare,
+  } = evaluateFiveCardHandStrength(currentPlay);
 
   if (cardsValue > currentPlayValue) {
     return true;
@@ -246,10 +248,9 @@ const evaluateFiveCardHand = (cards, currentPlay, version) => {
   }
   if (cardsValue === currentPlayValue) {
     return compareCard(cardsToCompare, currentPlayToCompare, version);
-
   }
-  // TODO: evaluation of same hands
-  return true;
+
+  return false;
 };
 
 const evaluateCards = (cards, currentPlay, version) => {

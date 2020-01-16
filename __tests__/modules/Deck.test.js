@@ -1,4 +1,4 @@
-import Deck from '../../modules/Deck';
+import Deck from '../../server/modules/Deck';
 
 const deck = new Deck();
 
