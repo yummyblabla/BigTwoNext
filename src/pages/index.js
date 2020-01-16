@@ -5,6 +5,7 @@ import { useState } from 'react';
 import io from 'socket.io-client';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 
 import withRedux from '../redux/redux';
 import { setUsername, setSocket } from '../redux/actionCreators';
@@ -38,6 +39,9 @@ const Index = () => {
 
   return (
     <div className="page">
+      <Head>
+        <title>Big Two</title>
+      </Head>
       <div className="loginContainer">
         <form>
           <p className="title">

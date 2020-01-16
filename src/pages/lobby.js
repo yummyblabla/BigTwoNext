@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-
+import Head from 'next/head';
 import withRedux from '../redux/redux';
+
 import {
   updateCurrentRoom,
 } from '../redux/actionCreators';
@@ -217,22 +218,28 @@ const Lobby = ({ useStateRef }) => {
 
   return (
     <div className="container">
+      <Head>
+        <title>Big Two Lobby</title>
+      </Head>
       <LobbyHeader
         username={username}
+        disconnect={disconnect}
       />
+      <div className="content">
+        <div className="buttonContainer">
+          <button type="button" className="createRoomButton" onClick={handleOpenCreateRoomModal}>Create room</button>
+        </div>
 
-      <div className="buttonContainer">
-        <button type="button" onClick={disconnect}>Disconnect</button>
-        <button type="button" onClick={handleOpenCreateRoomModal}>Create room</button>
+        <div className="mainContainer">
+          <RoomList
+            rooms={rooms}
+            joinRoom={handleJoinRoom}
+          />
+          <div style={{ width: '100px' }}/>
+          <PlayerList players={players} />
+        </div>
       </div>
-
-      <div className="mainContainer">
-        <PlayerList players={players} />
-        <RoomList
-          rooms={rooms}
-          joinRoom={handleJoinRoom}
-        />
-      </div>
+      
 
       <CreateRoomModal
         createRoom={handleCreateRoom}
@@ -268,6 +275,7 @@ const Lobby = ({ useStateRef }) => {
             margin: 0;
             padding: 0;
             font-family: Arial;
+            background-color: #CDCDCD;
           }
         `}
       </style>
@@ -278,14 +286,34 @@ const Lobby = ({ useStateRef }) => {
             flex-direction: column;
           }
           .buttonContainer {
+            height: 50px;
             display: flex;
-          }
-          .mainContainer {
-            display: flex;
+            margin: 10px 0;
           }
           p {
             font-size: 2rem;
           }
+          .content {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+          }
+          .mainContainer {
+            display: flex;
+          }
+          .createRoomButton {
+            background-color: #2db92d;
+            border: none;
+            border-radius: 10px;
+          }
+
+          .createRoomButton:hover {
+            background-color: #47d247;
+          }
+          button {
+            cursor: pointer;
+          }
+
         `}
       </style>
     </div>

@@ -19,18 +19,22 @@ const RoomLobby = ({
   const {
     roomName, maxPlayers, gameVersion, players, hostName,
   } = currentRoom;
-  console.log(currentRoom);
+  const playerHolders = [...Array(maxPlayers).keys()];
+
   return (
     <div className="roomLobby">
-      <h1>Room Lobby</h1>
-      <p>{`Room Name: ${roomName}`}</p>
-      <p>{maxPlayers}</p>
+      <h3>{`Room Name: ${roomName}`}</h3>
+      {playerHolders.map((holder) => {
+        return (
+          <div key={holder} className="holder">
+            <span>{`${holder + 1}.`}</span>
+            {players[holder] && (
+              <span className="playerName">{players[holder].username}</span>
+            )}
+          </div>
+        )
+      })}
       <p>{`Game Version: ${gameVersion}`}</p>
-      {players.map((player) => (
-        <p key={player.username}>
-          {player.username}
-        </p>
-      ))}
       <div>
         <button type="button" onClick={() => leaveRoom(roomName)}>Leave</button>
         {hostName === username && (<button type="button" onClick={() => startGame(roomName)}>Start Game</button>)}
@@ -39,9 +43,16 @@ const RoomLobby = ({
       <style jsx>
         {`
           .roomLobby {
+            padding: 10px;
             border: 1px solid black;
-            max-width: 600px;
             margin-top: 30px;
+            height: 400px;
+          }
+          .holder {
+            margin: 5px 0px;
+          }
+          .playerName {
+            margin-left: 10px;
           }
         `}
       </style>
@@ -55,13 +66,17 @@ RoomLobby.propTypes = {
     maxPlayers: PropTypes.number,
     gameVersion: PropTypes.string,
     players: PropTypes.arrayOf(
-      PropTypes.shape({}),
+      PropTypes.shape({
+        username: PropTypes.string,
+      }),
     ),
     hostName: PropTypes.string,
   }).isRequired,
   username: PropTypes.string.isRequired,
   leaveRoom: PropTypes.func.isRequired,
   startGame: PropTypes.func.isRequired,
+  inRoomLobby: PropTypes.bool.isRequired,
+  setModalOpen: PropTypes.func.isRequired,
 };
 
 export default LargeModalHOC(RoomLobby);
