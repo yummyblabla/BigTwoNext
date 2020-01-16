@@ -44,13 +44,13 @@ const Game = () => {
   }, []);
   return (
     <div className="container">
-      {/* <PixiComponent
+      <PixiComponent
         game={game}
         setGame={setGame}
         gameRef={gameRef}
         setScore={setScore}
         socket={socket}
-      /> */}
+      />
       <Scoreboard
         score={score}
       />
