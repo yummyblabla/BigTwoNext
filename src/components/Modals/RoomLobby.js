@@ -1,15 +1,28 @@
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
+import LargeModalHOC from '../HOC/LargeModalHOC';
+
+
 const RoomLobby = ({
-  currentRoom, leaveRoom, startGame, username,
+  currentRoom, leaveRoom, startGame, username, inRoomLobby, setModalOpen,
 }) => {
+  useEffect(() => {
+    setModalOpen(inRoomLobby);
+  }, [inRoomLobby]);
+
+  if (!Object.keys(currentRoom).length) {
+    return (
+      <div />
+    );
+  }
   const {
     roomName, maxPlayers, gameVersion, players, hostName,
   } = currentRoom;
+  console.log(currentRoom);
   return (
     <div className="roomLobby">
       <h1>Room Lobby</h1>
-
       <p>{`Room Name: ${roomName}`}</p>
       <p>{maxPlayers}</p>
       <p>{`Game Version: ${gameVersion}`}</p>
@@ -51,4 +64,4 @@ RoomLobby.propTypes = {
   startGame: PropTypes.func.isRequired,
 };
 
-export default RoomLobby;
+export default LargeModalHOC(RoomLobby);

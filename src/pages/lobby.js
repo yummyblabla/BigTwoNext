@@ -16,7 +16,8 @@ import CreateRoomModal from '../components/Modals/CreateRoom';
 import ErrorModal from '../components/Modals/ErrorModal';
 import PlayerList from '../components/Lobby/PlayerList';
 import RoomList from '../components/Lobby/RoomList';
-import RoomLobby from '../components/RoomLobby/RoomLobby';
+import RoomLobby from '../components/Modals/RoomLobby';
+import LobbyHeader from '../components/Lobby/LobbyHeader';
 
 /**
  * Lobby Page.
@@ -169,7 +170,7 @@ const Lobby = ({ useStateRef }) => {
   const handleLobbyError = ({ message }) => {
     setErrorMessage(message);
     setErrorModal(true);
-  }
+  };
 
   /**
    * Disconnects user from user and redirect to Index.
@@ -216,8 +217,9 @@ const Lobby = ({ useStateRef }) => {
 
   return (
     <div className="container">
-      <p>Lobby</p>
-      <span>{username}</span>
+      <LobbyHeader
+        username={username}
+      />
 
       <div className="buttonContainer">
         <button type="button" onClick={disconnect}>Disconnect</button>
@@ -238,14 +240,21 @@ const Lobby = ({ useStateRef }) => {
         setCreateRoomModal={setCreateRoomModal}
       />
 
-      {playerState === USER_IN_ROOM_STATE && (
+      <RoomLobby
+        inRoomLobby={playerState === USER_IN_ROOM_STATE}
+        currentRoom={currentRoom}
+        leaveRoom={handleLeaveRoom}
+        startGame={handleStartGame}
+        username={username}
+      />
+      {/* {playerState === USER_IN_ROOM_STATE && (
         <RoomLobby
           currentRoom={currentRoom}
           leaveRoom={handleLeaveRoom}
           startGame={handleStartGame}
           username={username}
         />
-      )}
+      )} */}
 
       <ErrorModal
         errorModal={errorModal}
