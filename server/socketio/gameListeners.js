@@ -1,28 +1,15 @@
 /* eslint-disable no-param-reassign */
-import { CHINESE_VERSION } from '../modules/Helpers/Constants';
-import Game from '../modules/Game';
-import PlayerLobby from '../modules/Player';
 import Card from '../modules/Card';
 import mergeSort from '../modules/Helpers/Sorting';
 import evaluateCards from '../modules/Evaluation';
 
 export default function gameListeners(lobby, socket, io, rooms, clients, games) {
   socket.on('getGame', ({ roomName }) => {
-    // // TEST
-    // games[roomName] = new Game(
-    //   roomName,
-    //   [new PlayerLobby('Guest4', 'ASDF'), new PlayerLobby('Guest', socket.id), new PlayerLobby('Guest123', 'ASDF'), new PlayerLobby('Guestasd', 'ASDF')],
-    //   CHINESE_VERSION,
-    // );
-    // //
     const room = rooms[roomName];
     const currentGame = games[roomName];
     socket.emit('setGame', {
       game: {
         roomName,
-        // // TEST
-        // players: [new PlayerLobby('Guest4', 'ASDF'), new PlayerLobby('Guest', 'ASDF'), new PlayerLobby('Guest123', 'ASDF'), new PlayerLobby('Guestasd', 'ASDF')],
-        // //
         players: room.getPlayers(),
         gameVersion: currentGame.getGameVersion(),
         scores: currentGame.getScores(),
@@ -35,32 +22,38 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
       currentGame.startGame();
       currentGame.determineFirst();
 
-      const indexOfFirstPlayer = currentGame.getPlayerTurn();
-      // // TEST
-      // socket.emit('startGame', { roomName, indexOfFirstPlayer });
-      // //
-      io.to(`room-${roomName}`).emit('startGame', { roomName, indexOfFirstPlayer });
+      const nameOfFirstPlayer = currentGame.getPlayerTurn();
+      io.to(`room-${roomName}`).emit('startGame', { roomName, nameOfFirstPlayer });
     }
   });
 
   socket.on('getCards', ({ roomName }) => {
+    const player = clients[socket.id];
+    if (!player) return;
+
     const currentGame = games[roomName];
-    const index = currentGame.getPlayers().findIndex(
-      (player) => player.getSocketId() === socket.id,
-    );
+    if (!currentGame) return;
+
+    const username = player.getUsername();
+
     socket.emit('receiveCards', {
-      cards: currentGame.getCards(index),
+      cards: currentGame.getCards(username),
     });
   });
 
   socket.on('sendCards', ({ roomName, cards }) => {
     const player = clients[socket.id];
+    if (!player) return;
+
     const currentGame = games[roomName];
+    if (!currentGame) return;
+
+    const playerName = player.getUsername();
     const index = currentGame.getPlayers().findIndex(
       ($player) => $player.getSocketId() === socket.id,
     );
 
-    if (currentGame.getPlayerTurn() !== index) {
+    if (currentGame.getPlayerTurn() !== playerName) {
       return;
     }
 
@@ -71,13 +64,14 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
       cardClasses.push(new Card(rank, suit));
     });
     cardClasses = mergeSort(cardClasses, currentGame.getGameVersion());
-
+    // TODO: check if cards are in hand
     if (!evaluateCards(cardClasses, currentGame.getCurrentPlay(), currentGame.getGameVersion())) {
       return;
     }
+
     currentGame.setCurrentPlay(cardClasses);
 
-    const hand = currentGame.getCardPile(index);
+    const hand = currentGame.getCardPile(playerName);
     cards.forEach((card) => {
       const rank = card.substr(0, card.length - 1);
       const suit = card.substr(card.length - 1);
@@ -89,27 +83,19 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
       cards,
       passed: false,
     });
-    // // TEST
-    // socket.emit('cardsPlayed', {
-    //   cards,
-    //   username: 'Guest123',
-    // });
-    // //
-    io.to(`room-${roomName}`).emit('cardsPlayed', {
-      cards, username: player.getUsername(),
-    });
 
     currentGame.goToNextTurn();
+
+    io.to(`room-${roomName}`).emit('cardsPlayed', {
+      cards,
+      username: playerName,
+      nextPlayer: currentGame.getPlayerTurn(),
+    });
+
     if (hand.checkIfHandEmpty()) {
       const { username } = currentGame.getPlayers()[index];
       currentGame.setLastWinner(username);
       currentGame.resetForNextRound();
-      // // TEST
-      // socket.emit('endRound', {
-      //   winner: username,
-      //   scores: currentGame.getScores(),
-      // });
-      // //
       io.to(`room-${roomName}`).emit('endRound', {
         winner: username,
         scores: currentGame.getScores(),
@@ -119,17 +105,10 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
         // reset round
         currentGame.startGame();
 
-        const indexOfFirstPlayer = currentGame.getPlayers().findIndex(
-          ($player) => $player.getUsername() === currentGame.getLastWinner(),
-        );
-
-        // // TEST
-        // socket.emit('startGame', {
-        //   roomName, indexOfFirstPlayer, players: currentGame.getPlayers(),
-        // });
-        // //
         io.to(`room-${roomName}`).emit('startGame', {
-          roomName, indexOfFirstPlayer, players: currentGame.getPlayers(),
+          roomName,
+          nameOfFirstPlayer: currentGame.getLastWinner(),
+          players: currentGame.getPlayers(),
         });
       }, 5000);
     }
@@ -137,37 +116,29 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
 
   socket.on('passTurn', ({ roomName }) => {
     const player = clients[socket.id];
+    if (!player) return;
+
     const currentGame = games[roomName];
+    if (!currentGame) return;
 
-    const index = currentGame.getPlayers().findIndex(
-      ($player) => $player.getSocketId() === socket.id,
-    );
-
-    if (currentGame.getPlayerTurn() !== index) {
+    const playerName = player.getUsername();
+    if (currentGame.getPlayerTurn() !== playerName) {
       return;
     }
 
     currentGame.increasePassCounter();
     currentGame.goToNextTurn();
-    console.log(currentGame);
 
     socket.emit('validPlay', {
       cards: [],
       passed: true,
     });
 
-    // // TEST
-    // socket.emit('cardsPlayed', {
-    //   cards: [],
-    //   passed: true,
-    //   username: 'Guest123',
-    // });
-    // //
-
     io.to(`room-${roomName}`).emit('cardsPlayed', {
       cards: [],
       passed: true,
-      username: player.getUsername(),
+      username: playerName,
+      nextPlayer: currentGame.getPlayerTurn(),
     });
   });
 }

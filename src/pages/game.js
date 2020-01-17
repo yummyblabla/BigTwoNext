@@ -24,8 +24,7 @@ const Game = () => {
   const [game, setGame] = useState({});
   const gameRef = useStateRef(game);
 
-  const [score, setScore] = useState({ qw: [0], as: [0]});
-  console.log(score);
+  const [score, setScore] = useState({});
   const leaveGame = () => {
     socket.emit('leaveGame', {
       
