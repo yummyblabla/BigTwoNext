@@ -204,8 +204,11 @@ const evaluateFiveCardHandStrength = (cards) => {
 };
 
 const compareCard = (cardToCompare, currentPlayToCompare, version) => {
-  if (typeof cardToCompare === 'number') {
-    return cardToCompare > currentPlayToCompare;
+  if (typeof cardToCompare === 'string') {
+
+    const cardRankOnly = RANKS.indexOf(cardToCompare);
+    const playRankOnly = RANKS.indexOf(currentPlayToCompare);
+    return cardRankOnly > playRankOnly;
   }
   const cardRank = RANKS.indexOf(cardToCompare.getRank());
   const playRank = RANKS.indexOf(currentPlayToCompare.getRank());
