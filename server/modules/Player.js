@@ -22,6 +22,10 @@ class Player {
     return this.state;
   }
 
+  setState(state) {
+    this.state = state;
+  }
+
   getRoom() {
     return this.currentRoom;
   }
@@ -32,9 +36,7 @@ class Player {
   }
 
   startedGame() {
-    if (this.state === USER_IN_ROOM_STATE) {
-      this.state = USER_IN_GAME_STATE;
-    }
+    this.state = USER_IN_GAME_STATE;
   }
 
   checkIfInRoom() {

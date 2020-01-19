@@ -4,7 +4,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import * as actions from './actions';
 
 const initialState = {
-  username: 'Guest',
+  username: '',
   room: {},
   socket: null,
 };

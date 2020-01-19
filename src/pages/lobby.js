@@ -51,9 +51,6 @@ const Lobby = ({ useStateRef }) => {
   };
 
   const handleStartGame = (roomName) => {
-    if (playerState !== USER_IN_ROOM_STATE) {
-      return;
-    }
     socket.emit('startGame', {
       roomName,
     });
@@ -239,7 +236,6 @@ const Lobby = ({ useStateRef }) => {
           <PlayerList players={players} />
         </div>
       </div>
-      
 
       <CreateRoomModal
         createRoom={handleCreateRoom}
@@ -254,14 +250,6 @@ const Lobby = ({ useStateRef }) => {
         startGame={handleStartGame}
         username={username}
       />
-      {/* {playerState === USER_IN_ROOM_STATE && (
-        <RoomLobby
-          currentRoom={currentRoom}
-          leaveRoom={handleLeaveRoom}
-          startGame={handleStartGame}
-          username={username}
-        />
-      )} */}
 
       <ErrorModal
         errorModal={errorModal}

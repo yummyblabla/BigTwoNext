@@ -2,8 +2,7 @@ import PropTypes from 'prop-types';
 
 import * as PIXI from 'pixi.js';
 import { useState, useEffect, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import io from 'socket.io-client';
+import { useDispatch } from 'react-redux';
 
 import * as Render from './Render';
 import * as GameVariables from '../Game/GameVariables';
@@ -16,9 +15,6 @@ const APP_WIDTH = 800;
 const APP_HEIGHT = 600;
 
 let pixiApplication;
-// TEST
-// let socket;
-//
 let resources;
 
 let playerContainer;
@@ -238,7 +234,7 @@ const setUpContainers = (room, socket) => {
  * Pixi Component.
  */
 const PixiComponent = ({
-  game, setGame, gameRef, setScore, socket,
+  game, setGame, gameRef, setScore, socket, setGameMessage, setGameModal, room, username,
 }) => {
   function useStateRef(state) {
     const stateRef = useRef(state);
@@ -250,8 +246,7 @@ const PixiComponent = ({
 
   const dispatch = useDispatch();
   const canvasRef = useRef(null);
-  const room = useSelector((state) => state.room);
-  const username = useSelector((state) => state.username);
+  
 
   const [cards, setCards] = useState([]);
   const cardsRef = useStateRef(cards);
@@ -342,7 +337,12 @@ const PixiComponent = ({
    */
   const handleEndRound = ({ winner, scores }) => {
     setScore(scores);
-    alert(`${winner} won the round.`)
+    setGameMessage(`${winner} has won the round.`);
+    setGameModal(true);
+    setTimeout(() => {
+      setGameModal(false);
+      setGameMessage('');
+    }, 4000);
   };
 
   /**
@@ -387,9 +387,6 @@ const PixiComponent = ({
   };
 
   useEffect(() => {
-    // // TEST
-    // socket = io();
-    // //
     socket.on('setGame', handleSetGame);
     socket.on('startGame', handleStartGame);
     socket.on('receiveCards', handleReceiveCards);
@@ -407,16 +404,10 @@ const PixiComponent = ({
 
     function setup(loader, $resources) {
       resources = $resources;
-      // // TEST
-      // setUpContainers({ roomName: 'test' });
-      // //
       setUpContainers(room, socket);
 
       socket.emit('getGame', {
         roomName: room.roomName,
-        // // TEST
-        // roomName: 'test',
-        //
       });
     }
 
@@ -447,6 +438,15 @@ PixiComponent.propTypes = {
   setGame: PropTypes.func.isRequired,
   gameRef: PropTypes.shape({}).isRequired,
   setScore: PropTypes.func.isRequired,
+  room: PropTypes.shape({}).isRequired,
+  username: PropTypes.string.isRequired,
+  socket: PropTypes.shape({
+    off: PropTypes.func,
+    emit: PropTypes.func,
+    on: PropTypes.func,
+  }).isRequired,
+  setGameMessage: PropTypes.func.isRequired,
+  setGameModal: PropTypes.func.isRequired,
 };
 
 export default PixiComponent;

@@ -32,9 +32,11 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
    * Creating Room Handler.
    */
   socket.on('userCreateRoom', ({ roomName, maxPlayers, gameVersion }) => {
+    // Check if client exists
     if (!clients.hasOwnProperty(socket.id)) {
       return;
     }
+    // Duplicate room error
     if (rooms.hasOwnProperty(roomName)) {
       socket.emit('lobbyError', {
         message: 'Duplicate room name exists.',
@@ -42,8 +44,7 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
       return;
     }
 
-    const player = clients[socket.id];
-
+    // Room name length checking
     if (roomName.length <= 0) {
       socket.emit('lobbyError', {
         message: 'Room name is too short.',
@@ -57,6 +58,8 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
       return;
     }
 
+    const player = clients[socket.id];
+
     rooms[roomName] = new Room(
       roomName, maxPlayers, gameVersion, player,
     );
@@ -65,10 +68,11 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
     socket.join(`room-${roomName}`);
     player.joinRoom(roomName);
 
-    // // Send join room success message
+    // Send join room success message
     socket.emit('joinRoomSuccess', {
       room: rooms[roomName],
     });
+
     // Send lobby update about player update
     lobby.emit('updatePlayerStatus', {
       socketId: socket.id,
@@ -81,41 +85,14 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
   });
 
   /**
-   * User Disconnect Handler.
-   */
-  socket.on('disconnect', () => {
-    console.log('someone disconnected');
-    const player = clients[socket.id];
-    if (player && player.checkIfInRoom()) {
-      const roomName = player.getRoom();
-
-      const room = rooms[roomName];
-      if (room) {
-        room.removePlayer(player);
-
-        if (room.checkIfEmpty()) {
-          delete rooms[roomName];
-          lobby.emit('getRoomList', {
-            rooms,
-          });
-        }
-      }
-      delete usernames[player.getUsername()];
-    }
-
-    delete clients[socket.id];
-    lobby.emit('getLobbyList', {
-      clients,
-    });
-  });
-
-  /**
    * Handles user attempt to join room.
    */
   socket.on('userJoinRoom', ({ roomName }) => {
+    // Check if client exists
     if (!clients.hasOwnProperty(socket.id)) {
       return;
     }
+    // Check if room exists
     if (!rooms.hasOwnProperty(roomName)) {
       socket.emit('lobbyError', {
         message: 'Room does not exist.',
@@ -126,6 +103,7 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
     const room = rooms[roomName];
     const player = clients[socket.id];
 
+    // Edge-case checking
     if (room.checkIfStarted()) {
       socket.emit('lobbyError', {
         message: 'Room already started.',
@@ -147,6 +125,7 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
       return;
     }
 
+    // Add player to room
     room.addPlayer(player);
     player.joinRoom(roomName);
 
@@ -177,18 +156,36 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
    * Handles user leaving room.
    */
   socket.on('userLeaveRoom', ({ roomName }) => {
+    // Check if client exists
     if (!clients.hasOwnProperty(socket.id)) {
       return;
     }
+    // Check if room exists
     if (!rooms.hasOwnProperty(roomName)) {
       return;
     }
 
     const room = rooms[roomName];
     const player = clients[socket.id];
+
+    // Remove player from room
     room.removePlayer(player);
 
+    // Handle Player (client) side
+    player.leaveRoom();
+    // Leave socket room
+    socket.leave(`room-${roomName}`);
+    // Send leave room success message
+    socket.emit('leaveRoomSuccess', {});
+    // Send lobby update about player update
+    lobby.emit('updatePlayerStatus', {
+      socketId: socket.id,
+      state: USER_LOBBY_STATE,
+    });
+
+    // Handle Rooms side
     if (room.checkIfEmpty()) {
+      // Delete room if empty
       delete rooms[roomName];
       // Send lobby update about new list of rooms
       lobby.emit('getRoomList', {
@@ -199,21 +196,31 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
       lobby.emit('updateRoomStatus', {
         room,
       });
+      // TODO: This may be redundant
+      // if we can bundle with updateRoomStatus and handle check on clientside
+      lobby.to(`room-${roomName}`).emit('updateCurrentRoom', {
+        room,
+      });
     }
-    // Leave socket room
-    socket.leave(`room-${roomName}`);
-    // Send leave room success message
-    socket.emit('leaveRoomSuccess', {});
-    // Send lobby update about player update
-    lobby.emit('updatePlayerStatus', {
-      socketId: socket.id,
-      state: USER_LOBBY_STATE,
-    });
   });
 
+  /**
+   * Handle room starting game.
+   */
   socket.on('startGame', ({ roomName }) => {
+    // Check if client exists
+    if (!clients.hasOwnProperty(socket.id)) {
+      return;
+    }
+    // Check if room exists
+    if (!rooms.hasOwnProperty(roomName)) {
+      return;
+    }
+
     const player = clients[socket.id];
     const room = rooms[roomName];
+
+    // Do not start if player is not host
     if (room.hostName !== player.username) {
       return;
     }
@@ -224,13 +231,23 @@ export default function lobbyListeners(lobby, socket, io, rooms, clients, userna
       });
       // return;
     }
-    games[roomName] = new Game(roomName, room.getPlayers(), room.getVersion());
+
+    // Create game
+    games[roomName] = new Game(roomName, [...room.getPlayers()], room.getVersion());
+
+    // Send message to players in room to start game
     lobby.to(`room-${roomName}`).emit('startGameSuccess', {});
+
     lobby.in(`room-${roomName}`).clients((error, socketIds) => {
       if (error) throw error;
       socketIds.forEach((socketId) => {
         const currSocket = io.sockets.connected[socketId];
+        const currPlayer = clients[socketId];
+        // Change player state
+        currPlayer.startedGame();
+        // Make players in room to leave lobby namespace
         currSocket.leave('/lobby');
+        // Emit message to lobby
         lobby.emit('updatePlayerStatus', {
           socketId,
           state: USER_IN_GAME_STATE,

@@ -4,13 +4,16 @@ import mergeSort from '../modules/Helpers/Sorting';
 import evaluateCards from '../modules/Evaluation';
 
 export default function gameListeners(lobby, socket, io, rooms, clients, games) {
+  // Client receives game data when loaded /game
   socket.on('getGame', ({ roomName }) => {
-    const room = rooms[roomName];
+    if (!games.hasOwnProperty(roomName)) {
+      return;
+    }
     const currentGame = games[roomName];
     socket.emit('setGame', {
       game: {
         roomName,
-        players: room.getPlayers(),
+        players: currentGame.getPlayers(),
         gameVersion: currentGame.getGameVersion(),
         scores: currentGame.getScores(),
       },
@@ -27,31 +30,40 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
     }
   });
 
+  // Client receives cards when game starts
   socket.on('getCards', ({ roomName }) => {
+    if (!clients.hasOwnProperty(socket.id)) {
+      return;
+    }
+    if (!games.hasOwnProperty(roomName)) {
+      return;
+    }
+
     const player = clients[socket.id];
-    if (!player) return;
-
-    const currentGame = games[roomName];
-    if (!currentGame) return;
-
     const username = player.getUsername();
+    const currentGame = games[roomName];
+
+    if (!currentGame.isValidPlayer(username)) {
+      return;
+    }
 
     socket.emit('receiveCards', {
       cards: currentGame.getCards(username),
     });
   });
 
+  // Client sends cards to play
   socket.on('sendCards', ({ roomName, cards }) => {
+    if (!clients.hasOwnProperty(socket.id)) {
+      return;
+    }
+    if (!games.hasOwnProperty(roomName)) {
+      return;
+    }
+
     const player = clients[socket.id];
-    if (!player) return;
-
-    const currentGame = games[roomName];
-    if (!currentGame) return;
-
     const playerName = player.getUsername();
-    const index = currentGame.getPlayers().findIndex(
-      ($player) => $player.getSocketId() === socket.id,
-    );
+    const currentGame = games[roomName];
 
     if (currentGame.getPlayerTurn() !== playerName) {
       return;
@@ -65,12 +77,18 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
     });
     cardClasses = mergeSort(cardClasses, currentGame.getGameVersion());
     // TODO: check if cards are in hand
+
+    // If last played is the current player, everybody else passed
+    if (currentGame.getLastPlayed() === playerName) {
+      currentGame.setCurrentPlay(null);
+    }
+
+    // Check if cards are valid play.
     if (!evaluateCards(cardClasses, currentGame.getCurrentPlay(), currentGame.getGameVersion())) {
       return;
     }
 
-    currentGame.setCurrentPlay(cardClasses);
-
+    // Discard cards from hand.
     const hand = currentGame.getCardPile(playerName);
     cards.forEach((card) => {
       const rank = card.substr(0, card.length - 1);
@@ -79,11 +97,14 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
       hand.discardCard(cardIndex);
     });
 
+    // Let client who played cards know that cards were valid
     socket.emit('validPlay', {
       cards,
       passed: false,
     });
 
+    currentGame.setCurrentPlay(cardClasses);
+    currentGame.setLastPlayed(playerName);
     currentGame.goToNextTurn();
 
     io.to(`room-${roomName}`).emit('cardsPlayed', {
@@ -93,11 +114,10 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
     });
 
     if (hand.checkIfHandEmpty()) {
-      const { username } = currentGame.getPlayers()[index];
-      currentGame.setLastWinner(username);
+      currentGame.setLastWinner(playerName);
       currentGame.resetForNextRound();
       io.to(`room-${roomName}`).emit('endRound', {
-        winner: username,
+        winner: playerName,
         scores: currentGame.getScores(),
       });
 
@@ -115,18 +135,21 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
   });
 
   socket.on('passTurn', ({ roomName }) => {
+    if (!clients.hasOwnProperty(socket.id)) {
+      return;
+    }
+    if (!games.hasOwnProperty(roomName)) {
+      return;
+    }
+
     const player = clients[socket.id];
-    if (!player) return;
-
-    const currentGame = games[roomName];
-    if (!currentGame) return;
-
     const playerName = player.getUsername();
+    const currentGame = games[roomName];
+
     if (currentGame.getPlayerTurn() !== playerName) {
       return;
     }
 
-    currentGame.increasePassCounter();
     currentGame.goToNextTurn();
 
     socket.emit('validPlay', {
@@ -140,5 +163,56 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
       username: playerName,
       nextPlayer: currentGame.getPlayerTurn(),
     });
+  });
+
+  socket.on('leaveGame', ({ roomName }) => {
+    if (!clients.hasOwnProperty(socket.id)) {
+      return;
+    }
+    if (!rooms.hasOwnProperty(roomName)) {
+      return;
+    }
+
+
+    const player = clients[socket.id];
+    const playerName = player.getUsername();
+    const room = rooms[roomName];
+
+    // Remove player from room
+    room.removePlayer(player);
+    if (room.checkIfEmpty()) {
+      delete rooms[roomName];
+      lobby.emit('getRoomList', {
+        rooms,
+      });
+    }
+    lobby.emit('getRoomList', {
+      rooms,
+    });
+
+    if (!games.hasOwnProperty(roomName)) {
+      return;
+    }
+    const currentGame = games[roomName];
+    // Remove player from game
+    currentGame.removePlayer(player);
+    if (currentGame.checkIfEmpty()) {
+      delete games[roomName];
+    } else {
+      // TODO: let players in game that player has left
+      socket.emit('emit to players', () => {
+
+      });
+      // Adjust turn
+      if (currentGame.getPlayerTurn() === playerName) {
+        currentGame.goToNextTurn();
+        io.to(`room-${roomName}`).emit('cardsPlayed', {
+          cards: [],
+          passed: true,
+          username: playerName,
+          nextPlayer: currentGame.getPlayerTurn(),
+        });
+      }
+    }
   });
 }

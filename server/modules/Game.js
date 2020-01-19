@@ -15,12 +15,40 @@ class Game {
     this.currentPlay = null;
     this.playerTurn = null;
     this.scores = {};
+    this.lastPlayed = null;
     this.lastWinner = null;
-    this.passCounter = 0;
 
     players.forEach((player) => {
       this.scores[player.username] = [0];
     });
+  }
+
+  checkIfEmpty() {
+    return this.players.length === 0;
+  }
+
+  removePlayer(playerObject) {
+    const { socketId } = playerObject;
+    const index = this.players.findIndex((player) => player.socketId === socketId);
+    if (index !== -1) {
+      this.players.splice(index, 1);
+    }
+  }
+
+  isValidPlayer(username) {
+    const index = this.players.findIndex((player) => player.getUsername() === username);
+    if (index !== -1) {
+      return true;
+    }
+    return false;
+  }
+
+  setLastPlayed(username) {
+    this.lastPlayed = username;
+  }
+
+  getLastPlayed() {
+    return this.lastPlayed;
   }
 
   distributeCards() {
@@ -30,15 +58,6 @@ class Game {
       cardPileContainer[player.getUsername()] = cards[index];
     });
     this.cardPiles = cardPileContainer;
-    console.log(this.cardPiles);
-  }
-
-  increasePassCounter() {
-    this.passCounter += 1;
-    if (this.passCounter >= this.players.length - 1) {
-      this.currentPlay = null;
-      this.passCounter = 0;
-    }
   }
 
   setCurrentPlay(cards) {
@@ -66,7 +85,7 @@ class Game {
     this.updateScores();
     this.distributeCards();
     this.playerTurn = this.lastWinner;
-    this.passCounter = 0;
+    this.lastPlayed = null;
     this.currentPlay = null;
     this.started = false;
   }
@@ -79,7 +98,7 @@ class Game {
         number *= 2;
       }
       if (number === 13) {
-        number += 3;
+        number *= 3;
       }
       const playerScore = this.scores[player];
       const previousScore = playerScore[playerScore.length - 1];
