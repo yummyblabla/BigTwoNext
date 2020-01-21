@@ -177,7 +177,7 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
     const player = clients[socket.id];
     const playerName = player.getUsername();
     const room = rooms[roomName];
-
+    socket.leave(`room-${roomName}`);
     // Remove player from room
     room.removePlayer(player);
     if (room.checkIfEmpty()) {
@@ -199,9 +199,9 @@ export default function gameListeners(lobby, socket, io, rooms, clients, games) 
     if (currentGame.checkIfEmpty()) {
       delete games[roomName];
     } else {
-      // TODO: let players in game that player has left
-      socket.emit('emit to players', () => {
-
+      // TODO: handle last player logic
+      io.to(`room-${roomName}`).emit('playerLeft', {
+        username: playerName,
       });
       // Adjust turn
       if (currentGame.getPlayerTurn() === playerName) {

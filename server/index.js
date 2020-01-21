@@ -64,10 +64,10 @@ io.on('connection', (socket) => {
           if (currentGame.checkIfEmpty()) {
             delete games[roomName];
           } else {
-            // TODO: let players in game that player has left
-            // io.to(`room-${roomName}`).emit('cardsPlayed', {
-            //   something: 'hgey',
-            // });
+            // TODO: handle last player logic
+            io.to(`room-${roomName}`).emit('playerLeft', {
+              username: playerName,
+            });
             // Adjust turn
             if (currentGame.getPlayerTurn() === playerName) {
               currentGame.goToNextTurn();

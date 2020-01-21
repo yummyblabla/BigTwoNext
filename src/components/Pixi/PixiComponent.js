@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as PIXI from 'pixi.js';
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 
 import * as Render from './Render';
 import * as GameVariables from '../Game/GameVariables';
@@ -244,9 +245,10 @@ const PixiComponent = ({
     return stateRef;
   }
 
+  const router = useRouter();
   const dispatch = useDispatch();
   const canvasRef = useRef(null);
-  
+
 
   const [cards, setCards] = useState([]);
   const cardsRef = useStateRef(cards);
@@ -327,8 +329,6 @@ const PixiComponent = ({
       });
       setCards(newCards);
       Render.renderPlayerHandCards(playerHandContainer, newCards, resources);
-    } else {
-      alert('Invalid play');
     }
   };
 
@@ -386,7 +386,17 @@ const PixiComponent = ({
     setScore(scores);
   };
 
+  /**
+   * Handler for when another player leaves.
+   */
+  const handlePlayerLeft = ({ username: $username }) => {
+    alert(`${$username} has left.`)
+  };
+
   useEffect(() => {
+    if (socket === null) {
+      router.push('/');
+    }
     socket.on('setGame', handleSetGame);
     socket.on('startGame', handleStartGame);
     socket.on('receiveCards', handleReceiveCards);
@@ -394,6 +404,7 @@ const PixiComponent = ({
     socket.on('cardsPlayed', handleCardsPlayed);
     socket.on('endRound', handleEndRound);
     socket.on('updateScore', handleUpdateScores);
+    socket.on('playerLeft', handlePlayerLeft);
 
     pixiApplication = new PIXI.Application({
       width: APP_WIDTH,
@@ -412,9 +423,17 @@ const PixiComponent = ({
     }
 
     pushToImages();
-    pixiApplication.loader
-      .add(images)
-      .load(setup);
+    if (resources) {
+      setUpContainers(room, socket);
+
+      socket.emit('getGame', {
+        roomName: room.roomName,
+      });
+    } else {
+      pixiApplication.loader
+        .add(images)
+        .load(setup);
+    }
 
     return function cleanup() {
       socket.off('setGame');
@@ -424,6 +443,7 @@ const PixiComponent = ({
       socket.off('cardsPlayed');
       socket.off('endRound');
       socket.off('updateScore');
+      socket.off('playerLeft');
     };
   }, []);
 
@@ -438,7 +458,9 @@ PixiComponent.propTypes = {
   setGame: PropTypes.func.isRequired,
   gameRef: PropTypes.shape({}).isRequired,
   setScore: PropTypes.func.isRequired,
-  room: PropTypes.shape({}).isRequired,
+  room: PropTypes.shape({
+    roomName: PropTypes.string,
+  }).isRequired,
   username: PropTypes.string.isRequired,
   socket: PropTypes.shape({
     off: PropTypes.func,
