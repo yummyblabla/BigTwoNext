@@ -10,3 +10,5 @@ export const LIGHT_FOUR = '#cb3737';
 
 export const GREEN = '#2db92d';
 export const GREEN_HOVER = '#47d247';
+
+export const WHITE = '#ffffff';
