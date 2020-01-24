@@ -36,10 +36,12 @@ const RoomList = ({
             min-width: 300px;
             width: 300px;
             max-width: 300px;
-            background-color: #fff;
+            background-color: ${Color.DARK_TWO};
+            border-radius: 10px;
           }
           .title {
             margin-left: 10px;
+            color: ${Color.DARK_FOUR}
           }
           .list {
             overflow-y: auto;
@@ -47,16 +49,16 @@ const RoomList = ({
           }
           .room {
             border: 1px solid black;
-            background-color: ${Color.LIGHT_PURPLE};
+            background-color: ${Color.DARK_ONE};
             margin: 5px;
             padding: 5px;
             cursor: pointer;
           }
           .room:hover {
-            background-color: ${Color.PURPLE};
+            background-color: ${Color.DARK_THREE};
           }
           .roomInfo {
-            color: ${Color.COMPLEMENT_TEXT};
+            color: ${Color.DARK_FOUR};
           }
         `}
       </style>

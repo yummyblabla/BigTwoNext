@@ -21,10 +21,10 @@ const LobbyHeader = ({
           align-items: center;
           justify-content: space-between;
           padding: 0 20px;
-          background-color: ${Color.PURPLE};
+          background-color: ${Color.DARK_ONE};
         }
         .text {
-          color: ${Color.COMPLEMENT_TEXT};
+          color: ${Color.DARK_FOUR};
         }
         .dropdown {
           position: relative;
@@ -44,12 +44,12 @@ const LobbyHeader = ({
         }
 
         .dropdown-button {
-          background-color: ${Color.PURPLE};
+          background-color: ${Color.DARK_ONE};
           border: none;
           cursor: pointer;
         }
         .dropdown-button:hover {
-          background-color: ${Color.LIGHT_PURPLE};
+          background-color: ${Color.DARK_THREE};
         }
       `}
     </style>

@@ -13,6 +13,8 @@ import {
 } from '../../server/modules/Helpers/Constants';
 import withStateRef from '../components/HOC/withStateRef';
 
+import * as Color from '../constants/colors';
+
 import CreateRoomModal from '../components/Modals/CreateRoom';
 import ErrorModal from '../components/Modals/ErrorModal';
 import PlayerList from '../components/Lobby/PlayerList';
@@ -239,7 +241,6 @@ const Lobby = ({ useStateRef }) => {
           <PlayerList players={players} />
         </div>
       </div>
-      
 
       <CreateRoomModal
         createRoom={handleCreateRoom}
@@ -262,7 +263,6 @@ const Lobby = ({ useStateRef }) => {
           username={username}
         />
       )} */}
-
       <ErrorModal
         errorModal={errorModal}
         setErrorModal={setErrorModal}
@@ -275,7 +275,7 @@ const Lobby = ({ useStateRef }) => {
             margin: 0;
             padding: 0;
             font-family: Arial;
-            background-color: #CDCDCD;
+            background-color: ${Color.DARK_THREE};
           }
         `}
       </style>
@@ -302,13 +302,14 @@ const Lobby = ({ useStateRef }) => {
             display: flex;
           }
           .createRoomButton {
-            background-color: #2db92d;
+            background-color: ${Color.GREEN};
+            width: 100px;
             border: none;
             border-radius: 10px;
+            font-size: 1rem;
           }
-
           .createRoomButton:hover {
-            background-color: #47d247;
+            background-color: ${Color.GREEN_HOVER};
           }
           button {
             cursor: pointer;

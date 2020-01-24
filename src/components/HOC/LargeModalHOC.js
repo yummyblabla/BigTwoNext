@@ -57,6 +57,7 @@ const withSmallModal = (WrappedComponent) => (props) => {
             -ms-transform: scale(1);
             transform: scale(1);
             opacity: 1;
+            border-radius: 20px;
           }
           .md-overlay {
             position: fixed;

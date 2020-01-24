@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { NUMBER_OF_PLAYERS, GAME_VERSIONS, CHINESE_VERSION } from '../../../server/modules/Helpers/Constants';
 import LargeModalHOC from '../HOC/LargeModalHOC';
 
+import * as Color from '../../constants/colors';
+
 const CreateRoom = ({
   setModalOpen,
   createRoom,
@@ -35,7 +37,7 @@ const CreateRoom = ({
 
   return (
     <div className="content">
-      <h1>Create Room</h1>
+      <p className="title">Create Room</p>
       <button className="closeButton" type="button" onClick={() => setCreateRoomModal(false)}>Close</button>
       {/* <button type="button" onClick={resetRoomState}>Set Defaults</button> */}
       <form>
@@ -65,6 +67,14 @@ const CreateRoom = ({
         {`
           .content {
             padding: 20px 30px;
+            background-color: ${Color.DARK_FOUR};
+            color: ${Color.DARK_ONE};
+            border-radius: 20px;
+          }
+          .title {
+            font-size: 1.5rem;
+            margin-top: 10px;
+            color: ${Color.DARK_ONE};
           }
           label {
             display: flex;
@@ -83,6 +93,8 @@ const CreateRoom = ({
             border: 1px solid black;
             padding: 0px 10px 5px 10px;
             font-size: 1.3rem;
+            cursor: pointer;
+            border-radius: 20px;
           }
           .submitButton {
             cursor: pointer;
@@ -110,6 +122,9 @@ const CreateRoom = ({
 
 CreateRoom.propTypes = {
   createRoom: PropTypes.func.isRequired,
+  setModalOpen: PropTypes.func.isRequired,
+  createRoomModal: PropTypes.func.isRequired,
+  setCreateRoomModal: PropTypes.func.isRequired,
 };
 
 export default LargeModalHOC(CreateRoom);
