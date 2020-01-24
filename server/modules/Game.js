@@ -13,22 +13,51 @@ class Game {
     this.started = false;
     this.cardPiles = [];
     this.currentPlay = null;
-    this.playerTurn = 0;
+    this.playerTurn = null;
     this.scores = {};
+    this.lastPlayed = null;
     this.lastWinner = null;
-    this.passCounter = 0;
 
     players.forEach((player) => {
       this.scores[player.username] = [0];
     });
   }
 
-  increasePassCounter() {
-    this.passCounter += 1;
-    if (this.passCounter >= this.players.length - 1) {
-      this.currentPlay = null;
-      this.passCounter = 0;
+  checkIfEmpty() {
+    return this.players.length === 0;
+  }
+
+  removePlayer(playerObject) {
+    const { socketId } = playerObject;
+    const index = this.players.findIndex((player) => player.socketId === socketId);
+    if (index !== -1) {
+      this.players.splice(index, 1);
     }
+  }
+
+  isValidPlayer(username) {
+    const index = this.players.findIndex((player) => player.getUsername() === username);
+    if (index !== -1) {
+      return true;
+    }
+    return false;
+  }
+
+  setLastPlayed(username) {
+    this.lastPlayed = username;
+  }
+
+  getLastPlayed() {
+    return this.lastPlayed;
+  }
+
+  distributeCards() {
+    const cards = this.deck.distribute(this.gameVersion);
+    const cardPileContainer = {};
+    this.players.forEach((player, index) => {
+      cardPileContainer[player.getUsername()] = cards[index];
+    });
+    this.cardPiles = cardPileContainer;
   }
 
   setCurrentPlay(cards) {
@@ -39,32 +68,42 @@ class Game {
     return this.currentPlay;
   }
 
+  goToNextTurn() {
+    const currentTurn = this.playerTurn;
+    const index = this.players.findIndex((player) => player.getUsername() === currentTurn);
+    let nextIndex;
+    if (index >= this.players.length - 1) {
+      nextIndex = 0;
+    } else {
+      nextIndex = index + 1;
+    }
+    const nextPlayerName = this.players[nextIndex].getUsername();
+    this.playerTurn = nextPlayerName;
+  }
+
   resetForNextRound() {
     this.updateScores();
     this.distributeCards();
-
-    const indexOfFirst = this.players.findIndex(
-      (player) => player.getUsername() === this.lastWinner,
-    );
-    this.playerTurn = indexOfFirst;
-    this.passCounter = 0;
+    this.playerTurn = this.lastWinner;
+    this.lastPlayed = null;
     this.currentPlay = null;
     this.started = false;
   }
 
   updateScores() {
-    for (let i = 0; i < this.players.length; i += 1) {
-      let number = this.cardPiles[i].getNumberOfCards();
+    const playerHandKeys = Object.keys(this.cardPiles);
+    playerHandKeys.forEach((player) => {
+      let number = this.cardPiles[player].getNumberOfCards();
       if (number >= 10 && number <= 12) {
         number *= 2;
       }
       if (number === 13) {
-        number += 3;
+        number *= 3;
       }
-      const playerScore = this.scores[this.players[i].username];
+      const playerScore = this.scores[player];
       const previousScore = playerScore[playerScore.length - 1];
       playerScore.push(previousScore + number);
-    }
+    });
   }
 
   getLastWinner() {
@@ -103,31 +142,20 @@ class Game {
     return this.readyStateCounter;
   }
 
-  getCards(index) {
-    return this.cardPiles[index].getCards();
+  getCards(username) {
+    return this.cardPiles[username].getCards();
   }
 
   startGame() {
     this.started = true;
   }
 
-  distributeCards() {
-    this.cardPiles = this.deck.distribute(this.gameVersion);
-  }
-
-  setPlayerTurn(index) {
-    this.playerTurn = index;
+  setPlayerTurn(username) {
+    this.playerTurn = username;
   }
 
   getPlayerTurn() {
     return this.playerTurn;
-  }
-
-  goToNextTurn() {
-    this.playerTurn += 1;
-    if (this.playerTurn >= this.players.length) {
-      this.playerTurn = 0;
-    }
   }
 
   determineFirst() {
@@ -143,11 +171,13 @@ class Game {
     }
 
     while (!found) {
-      for (let i = 0; i < this.players.length; i += 1) {
-        const hand = this.cardPiles[i];
+      const playerHandKeys = Object.keys(this.cardPiles);
+      for (let i = 0; i < playerHandKeys.length; i += 1) {
+        const hand = this.cardPiles[playerHandKeys[i]];
         if (hand.findCard(RANKS[rankPointer], SUITS[suitPointer], this.gameVersion) !== -1) {
           found = true;
-          this.setPlayerTurn(i);
+          this.setPlayerTurn(playerHandKeys[i]);
+          break;
         }
       }
       suitPointer += 1;

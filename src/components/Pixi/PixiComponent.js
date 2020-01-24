@@ -2,8 +2,8 @@ import PropTypes from 'prop-types';
 
 import * as PIXI from 'pixi.js';
 import { useState, useEffect, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import io from 'socket.io-client';
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 
 import * as Render from './Render';
 import * as GameVariables from '../Game/GameVariables';
@@ -16,9 +16,6 @@ const APP_WIDTH = 800;
 const APP_HEIGHT = 600;
 
 let pixiApplication;
-// TEST
-// let socket;
-//
 let resources;
 
 let playerContainer;
@@ -103,7 +100,7 @@ const resetBoard = () => {
  * @param {*} username
  */
 const setUpBoard = (game, username) => {
-  const indexOfFirstPlayer = game.getPlayerTurn();
+  const nameOfFirstPlayer = game.getPlayerTurn();
   const numberOfPlayers = game.getNumberOfPlayers();
   const opponents = [];
 
@@ -119,11 +116,12 @@ const setUpBoard = (game, username) => {
   const tempPassContainers = [
     opponentOnePassContainer, opponentTwoPassContainer, opponentThreePassContainer,
   ];
+  playerTurnContainer.name = username;
   turnContainers.push(playerTurnContainer);
   const indexOfPlayer = game.getPlayers().findIndex((player) => player.username === username);
   let startPoint = indexOfPlayer + 1;
 
-  if (indexOfFirstPlayer === indexOfPlayer) {
+  if (nameOfFirstPlayer === username) {
     playerTurnContainer.visible = true;
   }
 
@@ -131,25 +129,28 @@ const setUpBoard = (game, username) => {
     if (startPoint >= numberOfPlayers) {
       startPoint = 0;
     }
-    const { username: playerUsername } = game.getPlayers()[startPoint];
-    opponents.push(new Opponent(playerUsername));
+    const { username: opponentUsername } = game.getPlayers()[startPoint];
+    opponents.push(new Opponent(opponentUsername));
     const style = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: 20,
       fill: '#ffffff',
     });
-    const text = new PIXI.Text(playerUsername, style);
+    const text = new PIXI.Text(opponentUsername, style);
     text.y = -30;
     containers[i].addChild(text);
-    turnContainers.push(tempTurnContainers[i]);
+
+    const opponentTurnContainer = tempTurnContainers[i];
+    opponentTurnContainer.name = opponentUsername;
+    turnContainers.push(opponentTurnContainer);
     Render.renderOpponentCards(handContainers[i], 13, resources);
 
-    if (indexOfFirstPlayer === startPoint) {
-      tempTurnContainers[i].visible = true;
+    if (opponentUsername === nameOfFirstPlayer) {
+      opponentTurnContainer.visible = true;
     }
 
     startPoint += 1;
-    opponentContainers[playerUsername] = {
+    opponentContainers[opponentUsername] = {
       hand: handContainers[i],
       pass: tempPassContainers[i],
     };
@@ -234,7 +235,7 @@ const setUpContainers = (room, socket) => {
  * Pixi Component.
  */
 const PixiComponent = ({
-  game, setGame, gameRef, setScore, socket,
+  game, setGame, gameRef, setScore, socket, setGameMessage, setGameModal, room, username,
 }) => {
   function useStateRef(state) {
     const stateRef = useRef(state);
@@ -244,10 +245,10 @@ const PixiComponent = ({
     return stateRef;
   }
 
+  const router = useRouter();
   const dispatch = useDispatch();
   const canvasRef = useRef(null);
-  const room = useSelector((state) => state.room);
-  const username = useSelector((state) => state.username);
+
 
   const [cards, setCards] = useState([]);
   const cardsRef = useStateRef(cards);
@@ -266,10 +267,10 @@ const PixiComponent = ({
   /**
    * Handler for starting the game/round.
    */
-  const handleStartGame = ({ roomName, indexOfFirstPlayer }) => {
+  const handleStartGame = ({ roomName, nameOfFirstPlayer }) => {
     resetBoard();
     setGame((currentGame) => {
-      currentGame.setPlayerTurn(indexOfFirstPlayer);
+      currentGame.setPlayerTurn(nameOfFirstPlayer);
       setUpBoard(currentGame, username);
       return currentGame;
     });
@@ -291,16 +292,18 @@ const PixiComponent = ({
   /**
    * Helper function that toggles/renders turn indicator it's another player's turn.
    */
-  const goToNextTurn = () => {
-    let index = turnContainers.findIndex((container) => container.visible);
+  const goToNextTurn = (nextPlayerName) => {
+    const index = turnContainers.findIndex((container) => container.visible);
     turnContainers[index].visible = false;
-    index += 1;
-    if (index >= turnContainers.length) {
-      index = 0;
+
+    if (nextPlayerName !== username) {
+      opponentContainers[nextPlayerName].pass.visible = false;
     }
-    turnContainers[index].visible = true;
+
+    const nextIndex = turnContainers.findIndex((container) => container.name === nextPlayerName);
+    turnContainers[nextIndex].visible = true;
     setGame((currentGame) => {
-      currentGame.goToNextTurn();
+      currentGame.setPlayerTurn(nextPlayerName);
       return currentGame;
     });
   };
@@ -326,8 +329,6 @@ const PixiComponent = ({
       });
       setCards(newCards);
       Render.renderPlayerHandCards(playerHandContainer, newCards, resources);
-    } else {
-      alert('Invalid play');
     }
   };
 
@@ -336,18 +337,27 @@ const PixiComponent = ({
    */
   const handleEndRound = ({ winner, scores }) => {
     setScore(scores);
-    alert(`${winner} won the round.`)
+    setGameMessage(`${winner} has won the round.`);
+    setGameModal(true);
+    setTimeout(() => {
+      setGameModal(false);
+      setGameMessage('');
+    }, 4000);
   };
 
   /**
    * Handler for when cards are played.
    */
-  const handleCardsPlayed = ({ cards: $cards, passed, username: $username }) => {
+  const handleCardsPlayed = (
+    {
+      cards: $cards, passed, username: $username, nextPlayer,
+    },
+  ) => {
     if ($username !== username) {
       opponentContainers[$username].pass.visible = false;
       if (passed) {
         opponentContainers[$username].pass.visible = true;
-        goToNextTurn();
+        goToNextTurn(nextPlayer);
         return;
       }
       setGame((currentGame) => {
@@ -361,12 +371,12 @@ const PixiComponent = ({
       });
     }
     if (passed) {
-      goToNextTurn();
+      goToNextTurn(nextPlayer);
       return;
     }
 
     Render.renderPlayedCards(playContainer, $cards, resources);
-    goToNextTurn();
+    goToNextTurn(nextPlayer);
   };
 
   /**
@@ -376,10 +386,17 @@ const PixiComponent = ({
     setScore(scores);
   };
 
+  /**
+   * Handler for when another player leaves.
+   */
+  const handlePlayerLeft = ({ username: $username }) => {
+    alert(`${$username} has left.`)
+  };
+
   useEffect(() => {
-    // // TEST
-    // socket = io();
-    // //
+    if (socket === null) {
+      router.push('/');
+    }
     socket.on('setGame', handleSetGame);
     socket.on('startGame', handleStartGame);
     socket.on('receiveCards', handleReceiveCards);
@@ -387,6 +404,7 @@ const PixiComponent = ({
     socket.on('cardsPlayed', handleCardsPlayed);
     socket.on('endRound', handleEndRound);
     socket.on('updateScore', handleUpdateScores);
+    socket.on('playerLeft', handlePlayerLeft);
 
     pixiApplication = new PIXI.Application({
       width: APP_WIDTH,
@@ -397,23 +415,25 @@ const PixiComponent = ({
 
     function setup(loader, $resources) {
       resources = $resources;
-      // // TEST
-      // setUpContainers({ roomName: 'test' });
-      // //
       setUpContainers(room, socket);
 
       socket.emit('getGame', {
         roomName: room.roomName,
-        // // TEST
-        // roomName: 'test',
-        //
       });
     }
 
     pushToImages();
-    pixiApplication.loader
-      .add(images)
-      .load(setup);
+    if (resources) {
+      setUpContainers(room, socket);
+
+      socket.emit('getGame', {
+        roomName: room.roomName,
+      });
+    } else {
+      pixiApplication.loader
+        .add(images)
+        .load(setup);
+    }
 
     return function cleanup() {
       socket.off('setGame');
@@ -423,6 +443,7 @@ const PixiComponent = ({
       socket.off('cardsPlayed');
       socket.off('endRound');
       socket.off('updateScore');
+      socket.off('playerLeft');
     };
   }, []);
 
@@ -437,6 +458,17 @@ PixiComponent.propTypes = {
   setGame: PropTypes.func.isRequired,
   gameRef: PropTypes.shape({}).isRequired,
   setScore: PropTypes.func.isRequired,
+  room: PropTypes.shape({
+    roomName: PropTypes.string,
+  }).isRequired,
+  username: PropTypes.string.isRequired,
+  socket: PropTypes.shape({
+    off: PropTypes.func,
+    emit: PropTypes.func,
+    on: PropTypes.func,
+  }).isRequired,
+  setGameMessage: PropTypes.func.isRequired,
+  setGameModal: PropTypes.func.isRequired,
 };
 
 export default PixiComponent;

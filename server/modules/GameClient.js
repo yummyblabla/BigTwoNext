@@ -4,7 +4,7 @@ class GameClient {
     this.players = players;
     this.started = false;
     this.gameVersion = gameVersion;
-    this.playerTurn = -1;
+    this.playerTurn = null;
     this.opponents = [];
   }
 
@@ -32,17 +32,8 @@ class GameClient {
     return this.players;
   }
 
-  setPlayerTurn(index) {
-    this.playerTurn = index;
-  }
-
-  goToNextTurn() {
-    if (this.playerTurn === this.players.length - 1) {
-      this.playerTurn = 0;
-    } else {
-      this.playerTurn += 1;
-    }
-    return this.playerTurn;
+  setPlayerTurn(username) {
+    this.playerTurn = username;
   }
 
   getPlayerTurn() {

@@ -1,37 +1,40 @@
 import { useEffect, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
+import { useSelector, useDispatch } from 'react-redux';
 
+import {
+  updateCurrentRoom,
+} from '../redux/actionCreators';
+
+import withStateRef from '../components/HOC/withStateRef';
 import withRedux from '../redux/redux';
 import Scoreboard from '../components/Game/Scoreboard';
+import GameModal from '../components/Modals/GameModal';
 
 const PixiComponent = dynamic(import('../components/Pixi/PixiComponent'), { ssr: false });
 
-const Game = () => {
-  function useStateRef(state) {
-    const stateRef = useRef(state);
-    useEffect(() => {
-      stateRef.current = state;
-    }, [state]);
-    return stateRef;
-  }
+const Game = ({ useStateRef }) => {
   const router = useRouter();
   const socket = useSelector((state) => state.socket);
+  const room = useSelector((state) => state.room);
+  const username = useSelector((state) => state.username);
+
+  const dispatch = useDispatch();
 
   const optionsRef = useRef(null);
   const [options, setOptions] = useState(false);
   const [game, setGame] = useState({});
   const gameRef = useStateRef(game);
 
-  const [score, setScore] = useState({ qw: [0], as: [0]});
-  console.log(score);
+  const [score, setScore] = useState({});
+  const [gameModal, setGameModal] = useState(false);
+  const [gameMessage, setGameMessage] = useState('');
+
   const leaveGame = () => {
-    socket.emit('leaveGame', {
-      
-    });
+    socket.emit('leaveGame', { roomName: room.roomName });
     router.push('/lobby');
-  }
+  };
 
   const toggleOptions = () => {
     setOptions(!options);
@@ -40,6 +43,10 @@ const Game = () => {
   useEffect(() => {
     if (socket === null) {
       router.push('/');
+    }
+    
+    return function cleanup() {
+      dispatch(updateCurrentRoom({}));
     }
   }, []);
   return (
@@ -50,9 +57,19 @@ const Game = () => {
         gameRef={gameRef}
         setScore={setScore}
         socket={socket}
+        setGameModal={setGameModal}
+        setGameMessage={setGameMessage}
+        room={room}
+        username={username}
       />
       <Scoreboard
         score={score}
+      />
+      <GameModal
+        gameModal={gameModal}
+        setGameModal={setGameModal}
+        gameMessage={gameMessage}
+        setGameMessage={setGameMessage}
       />
       <div className="options">
         <button className="optionsButton" onClick={toggleOptions}>Options</button>
@@ -93,4 +110,4 @@ const Game = () => {
   );
 };
 
-export default withRedux(Game);
+export default withStateRef(withRedux(Game));

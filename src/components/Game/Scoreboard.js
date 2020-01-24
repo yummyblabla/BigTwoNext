@@ -39,6 +39,8 @@ const Scoreboard = ({ score }) => {
           .scores {
             padding-bottom: 10px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
           }
         `}
       </style>

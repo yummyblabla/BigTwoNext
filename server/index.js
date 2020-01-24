@@ -25,6 +25,69 @@ io.on('connection', (socket) => {
   lobbyListeners(lobby, socket, io, rooms, clients, usernames, games);
   gameListeners(lobby, socket, io, rooms, clients, games);
   console.log('someone connected');
+
+  /**
+   * User Disconnect Handler.
+   */
+  socket.on('disconnect', () => {
+    console.log('someone disconnected');
+    const player = clients[socket.id];
+    if (player) {
+      const playerName = player.getUsername();
+      delete usernames[playerName];
+
+      if (player.checkIfInRoom()) {
+        const roomName = player.getRoom();
+
+        // Remove player from room
+        const room = rooms[roomName];
+        if (room) {
+          room.removePlayer(player);
+
+          if (room.checkIfEmpty()) {
+            delete rooms[roomName];
+          } else {
+            lobby.to(`room-${roomName}`).emit('updateCurrentRoom', {
+              room,
+            });
+          }
+          lobby.emit('getRoomList', {
+            rooms,
+          });
+        }
+
+        // Remove player from game
+        const currentGame = games[roomName];
+        if (currentGame) {
+          currentGame.removePlayer(player);
+
+          if (currentGame.checkIfEmpty()) {
+            delete games[roomName];
+          } else {
+            // TODO: handle last player logic
+            io.to(`room-${roomName}`).emit('playerLeft', {
+              username: playerName,
+            });
+            // Adjust turn
+            if (currentGame.getPlayerTurn() === playerName) {
+              currentGame.goToNextTurn();
+              io.to(`room-${roomName}`).emit('cardsPlayed', {
+                cards: [],
+                passed: true,
+                username: playerName,
+                nextPlayer: currentGame.getPlayerTurn(),
+              });
+            }
+          }
+        }
+      }
+    }
+
+    delete clients[socket.id];
+    lobby.emit('getLobbyList', {
+      clients,
+    });
+  });
 });
 
 nextApp.prepare().then(() => {
