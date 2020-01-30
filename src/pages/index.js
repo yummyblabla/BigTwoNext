@@ -57,14 +57,13 @@ const Index = () => {
           <input className="submit" type="submit" value="Connect" onClick={connect} />
         </form>
       </div>
-      <div className="how-to-play-container">
-        <div className="how-to-play">
-          <p className="title">How To Play</p>
-          <p>Ranks of the cards from lowest to highest are:</p>
-          <p>3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A, 2</p>
-          <p>Suits order from lowest to highest are:</p>
-          <p>Diamonds, Clubs, Hearts, Spades</p>
-          <p>A player wins the round after playing all their cards.</p>
+      <div className="description-container">
+        <div className="description">
+          <a className="title" href="https://en.wikipedia.org/wiki/Big_two">What is BigTwo?</a>
+          <p>Play with friends and with up to 4 players!</p>
+          <p>Includes a point tracking system!</p>
+          <br />
+          <p>In Development: Game Version - Vietnamese + Game ending when reaching point threshold</p>
         </div>
       </div>
 
@@ -129,7 +128,7 @@ const Index = () => {
             background-color: ${Color.GREEN_HOVER};
           }
 
-          .how-to-play-container {
+          .description-container {
             border: 1px solid black;
             background-color: #ffffff;
             margin: 20px;
@@ -137,10 +136,10 @@ const Index = () => {
             text-align: center;
           }
 
-          .how-to-play {
+          .description {
             margin: 20px;
           }
-          .how-to-play .title {
+          .description .title {
             font-size: 1.5rem;
           }
         `}
