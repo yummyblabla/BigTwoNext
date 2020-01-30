@@ -41,6 +41,7 @@ const Index = () => {
     <div className="page">
       <Head>
         <title>Big Two</title>
+        <script data-ad-client="ca-pub-8458686627075146" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
       </Head>
       <div className="loginContainer">
         <form>
@@ -66,7 +67,7 @@ const Index = () => {
           <p>In Development: Game Version - Vietnamese + Game ending when reaching point threshold</p>
         </div>
       </div>
-
+      
       <IndexErrorModal
         errorModal={errorModal}
         setErrorModal={setErrorModal}
