@@ -40,19 +40,27 @@ const Index = () => {
   return (
     <div className="page">
       <Head>
-        <title>Big Two</title>
-        <script data-ad-client="ca-pub-8458686627075146" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+        <title>BigTwo.io</title>
+        <script data-ad-client="ca-pub-8458686627075146" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" />
       </Head>
       <div className="loginContainer">
         <form>
           <p className="title">
-            Play BigTwo
+            BigTwo.io
           </p>
           <br />
           <label htmlFor="username">
-            Choose a unique username!
+            <span className="labelTitle">Enter a unique username!</span>
             <br />
-            <input autoFocus className="usernameInput" id="username" type="text" value={username} onChange={(e) => set$Username(e.target.value)} placeholder="Username" />
+            <input
+              autoFocus
+              className={`usernameInput ${username.length >= 2 && username.length <= 8 ? 'validUsername' : 'invalidUsername'}`}
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => set$Username(e.target.value)}
+              placeholder="Username"
+            />
           </label>
           <br />
           <input className="submit" type="submit" value="Connect" onClick={connect} />
@@ -74,16 +82,6 @@ const Index = () => {
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
       />
-      <style jsx global>
-        {`
-          body {
-            margin: 0;
-            padding: 0;
-            background-color: ${Color.DARK_THREE};
-            font-family: Arial;
-          }
-        `}
-      </style>
       <style jsx>
         {`
           .page {
@@ -106,13 +104,27 @@ const Index = () => {
           }
 
           form .title {
-            font-size: 2rem;
-            margin-bottom: 0;
+            font-size: 3rem;
+            margin-bottom: 1rem;
             color: ${Color.DARK_FOUR};
           }
 
           .usernameInput {
             margin-top: 5px;
+            padding: 5px;
+            font-size: 1rem;
+          }
+
+          .labelTitle {
+            font-size: 1rem;
+          }
+
+          .validUsername {
+            border: 3px solid green;
+          }
+
+          .invalidUsername {
+            border: 3px solid red;
           }
 
           .submit {
