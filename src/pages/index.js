@@ -41,7 +41,14 @@ const Index = () => {
       <Head>
         <title>BigTwo.io</title>
         <script data-ad-client="ca-pub-8458686627075146" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" />
+        <meta charset="UTF-8" />
+        <meta name="description" content="BigTwo HTML5 Card Game with Socket.io" />
+        <meta name="keywords" content="BigTwo,Big2,Big Two,IO,Cards,Game,PixiJS,HTML5,Socket.io" />
+        <meta name="author" content="Derrick Lee" />
+        <link rel="icon" type="image/png" href="../../public/favicon.ico" />
+        <link rel="apple-touch-icon" href="../../public/favicon.ico" />
       </Head>
+
       <div className="background-white margin-20 border-radius-20">
         <form className="text-align-center margin-20">
           <p className="font-size-3rem margin-bot-10 color-dark-two">
