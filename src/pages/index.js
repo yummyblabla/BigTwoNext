@@ -45,8 +45,8 @@ const Index = () => {
         <meta name="description" content="BigTwo HTML5 Card Game with Socket.io" />
         <meta name="keywords" content="BigTwo,Big2,Big Two,IO,Cards,Game,PixiJS,HTML5,Socket.io" />
         <meta name="author" content="Derrick Lee" />
-        <link rel="icon" type="image/png" href="../../public/favicon.ico" />
-        <link rel="apple-touch-icon" href="../../public/favicon.ico" />
+        <link rel="icon" type="image/png" href="favicon.ico" />
+        <link rel="apple-touch-icon" href="favicon.ico" />
       </Head>
 
       <div className="background-white margin-20 border-radius-20">
