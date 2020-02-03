@@ -11,7 +11,6 @@ import withRedux from '../redux/redux';
 import { setUsername, setSocket } from '../redux/actionCreators';
 
 import IndexErrorModal from '../components/Modals/ErrorModal';
-import * as Color from '../constants/colors';
 
 const Index = () => {
   const router = useRouter();
@@ -43,14 +42,14 @@ const Index = () => {
         <title>BigTwo.io</title>
         <script data-ad-client="ca-pub-8458686627075146" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" />
       </Head>
-      <div className="loginContainer">
-        <form>
-          <p className="title">
+      <div className="background-white margin-20 border-radius-20">
+        <form className="text-align-center margin-20">
+          <p className="title color-dark-two">
             BigTwo.io
           </p>
           <br />
           <label htmlFor="username">
-            <span className="labelTitle">Enter a unique username!</span>
+            <span className="labelTitle color-dark-two">Enter a unique username!</span>
             <br />
             <input
               autoFocus
@@ -63,11 +62,11 @@ const Index = () => {
             />
           </label>
           <br />
-          <input className="submit" type="submit" value="Connect" onClick={connect} />
+          <input className="submit background-green" type="submit" value="Connect" onClick={connect} />
         </form>
       </div>
-      <div className="description-container">
-        <div className="description">
+      <div className="background-white margin-20 border-radius-20 text-align-center">
+        <div className="margin-20">
           <a className="title" href="https://en.wikipedia.org/wiki/Big_two">What is BigTwo?</a>
           <p>Play with friends and with up to 4 players!</p>
           <p>Includes a point tracking system!</p>
@@ -75,7 +74,7 @@ const Index = () => {
           <p>In Development: Game Version - Vietnamese + Game ending when reaching point threshold</p>
         </div>
       </div>
-      
+
       <IndexErrorModal
         errorModal={errorModal}
         setErrorModal={setErrorModal}
@@ -90,23 +89,10 @@ const Index = () => {
             justify-content: center;
             align-items: center;
           }
-          .loginContainer {
-            border: 1px solid black;
-            background-color: ${Color.DARK_TWO};
-            margin: 20px;
-            border-radius: 10px;
-          }
-
-          form {
-            text-align: center;
-            margin: 20px;
-            color: ${Color.DARK_FOUR};
-          }
 
           form .title {
             font-size: 3rem;
             margin-bottom: 1rem;
-            color: ${Color.DARK_FOUR};
           }
 
           .usernameInput {
@@ -132,28 +118,8 @@ const Index = () => {
             padding: 10px;
             border: none;
             border-radius: 10px;
-            background-color: ${Color.GREEN};
             width: 90%;
             cursor: pointer;
-          }
-
-          .submit:hover {
-            background-color: ${Color.GREEN_HOVER};
-          }
-
-          .description-container {
-            border: 1px solid black;
-            background-color: #ffffff;
-            margin: 20px;
-            border-radius: 10px;
-            text-align: center;
-          }
-
-          .description {
-            margin: 20px;
-          }
-          .description .title {
-            font-size: 1.5rem;
           }
         `}
       </style>

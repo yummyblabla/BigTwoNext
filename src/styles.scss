@@ -1,12 +1,99 @@
+$dark-one-color: #1b262c;
+$dark-two-color: #0f4c75;
+$dark-three-color: #3282b8;
+$dark-four-color: #bbe1fa;
+$light-one-color: #fafafa;
+$light-two-color: #e3e3e3;
+$light-three-color: #ee6f57;
+$light-four-color: #cb3737;
+$green-color: #2db92d;
+$green-hover-color: #47d247;
+$white-color: #ffffff;
+
+:export {
+  dark-one-color: $dark-one-color;
+  dark-two-color: $dark-two-color;
+  dark-three-color: $dark-three-color;
+  dark-four-color: $dark-four-color; 
+}
+
 body {
   margin: 0;
   font-family: 'Roboto', sans-serif;
+  background-color: $dark-one-color;
 }
 
 .title {
   font-size: 3rem;
 }
 
-h1 {
-  
+
+.text-align-left {
+  text-align: left;
+}
+.text-align-center {
+  text-align: center;
+}
+.text-align-right {
+  text-align: right;
+}
+
+.border-radius-10 {
+  border-radius: 10px
+}
+.border-radius-20 {
+  border-radius: 20px
+}
+.border-radius-30 {
+  border-radius: 30px
+}
+
+.margin-10 {
+  margin: 10px;
+}
+.margin-20 {
+  margin: 20px;
+}
+.margin-30 {
+  margin: 30px;
+}
+
+.color-green {
+  color: $green-color;
+}
+.color-green:hover {
+  color: $green-hover-color;
+}
+.color-dark-one {
+  color: $dark-one-color;
+}
+.color-dark-two {
+  color: $dark-two-color;
+}
+.color-dark-three {
+  color: $dark-three-color;
+}
+.color-dark-four {
+  color: $dark-four-color;
+}
+.background-green {
+  background-color: $green-color;
+}
+.background-green:hover {
+  background-color: $green-hover-color;
+}
+.background-dark-one {
+  background-color: $dark-one-color;
+}
+.background-dark-two {
+  background-color: $dark-two-color;
+}
+.background-dark-three {
+  background-color: $dark-three-color;
+}
+.background-dark-four {
+  background-color: $dark-four-color;
+}
+.background-white {
+  background-color: $white-color;
 }
