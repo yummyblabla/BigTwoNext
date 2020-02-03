@@ -1,16 +1,18 @@
 import PropTypes from 'prop-types';
-import * as Color from '../../constants/colors';
 
 const PlayerList = ({
   players,
 }) => {
   return (
-    <div className="playerList">
-      <h3 className="title">{`Players (${Object.keys(players).length})`}</h3>
-      <div className="list">
+    <div className="background-dark-two border-radius-10 border-black flex-column playerList">
+      <h3 className="padding-left-20 color-dark-four">{`Players (${Object.keys(players).length})`}</h3>
+      <div className="overflow-y list">
         {Object.keys(players).map((player) => (
-          <div key={players[player].socketId} className="player">
-            <span className="playerInfo">
+          <div
+            key={players[player].socketId}
+            className="border-black background-dark-one margin-5 padding-5 player"
+          >
+            <span className="color-dark-four">
               {`${players[player].username} - ${players[player].state}`}
             </span>
           </div>
@@ -20,29 +22,13 @@ const PlayerList = ({
       <style jsx>
         {`
           .playerList {
-            display: flex;
-            flex-direction: column;
-            border: 1px solid black;
             width: 300px;
-            background-color: ${Color.DARK_TWO};
-            border-radius: 10px;
-          }
-          .title {
-            margin-left: 10px;
-            color: ${Color.DARK_FOUR};
           }
           .list {
-            overflow-y: auto;
             max-height: 80vh;
           }
           .player {
-            border: 1px solid black;
-            background-color: ${Color.DARK_ONE};
-            margin: 5px;
-            padding: 5px;
-          }
-          .playerInfo {
-            color: ${Color.DARK_FOUR};
+            cursor: pointer;
           }
         `}
       </style>

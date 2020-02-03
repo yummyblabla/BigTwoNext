@@ -1,31 +1,21 @@
 import PropTypes from 'prop-types';
-import * as Color from '../../constants/colors';
+import variables from '../../styles.scss';
 
 const LobbyHeader = ({
   username, disconnect,
 }) => (
-  <div className="container">
-    <h3 className="text">Big Two Lobby</h3>
+  <div className="flex-row align-center justify-space-between padding-left-20 padding-right-20 background-dark-two">
+    <h3 className="color-dark-four">Big Two Lobby</h3>
     <div className="dropdown">
-      <span className="text">{username}</span>
+      <span className="color-dark-four">{username}</span>
       <div className="dropdown-content">
-        <button type="button" className="dropdown-button text">View Profile (doesn't work)</button>
-        <button type="button" className="dropdown-button text" onClick={disconnect}>Log out</button>
+        <button type="button" className="dropdown-button color-dark-four">View Profile (doesn't work)</button>
+        <button type="button" className="dropdown-button color-dark-four" onClick={disconnect}>Log out</button>
       </div>
     </div>
 
     <style jsx>
       {`
-        .container {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 20px;
-          background-color: ${Color.DARK_ONE};
-        }
-        .text {
-          color: ${Color.DARK_FOUR};
-        }
         .dropdown {
           position: relative;
           display: inline-block;
@@ -44,12 +34,10 @@ const LobbyHeader = ({
         }
 
         .dropdown-button {
-          background-color: ${Color.DARK_ONE};
-          border: none;
-          cursor: pointer;
+          background-color: ${variables.dark_two_color};
         }
         .dropdown-button:hover {
-          background-color: ${Color.DARK_THREE};
+          background-color: ${variables.dark_three_color};
         }
       `}
     </style>

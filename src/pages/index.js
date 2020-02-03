@@ -37,23 +37,23 @@ const Index = () => {
   };
 
   return (
-    <div className="page">
+    <div className="flex-column justify-center align-center">
       <Head>
         <title>BigTwo.io</title>
         <script data-ad-client="ca-pub-8458686627075146" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" />
       </Head>
       <div className="background-white margin-20 border-radius-20">
         <form className="text-align-center margin-20">
-          <p className="title color-dark-two">
+          <p className="font-size-3rem margin-bot-10 color-dark-two">
             BigTwo.io
           </p>
           <br />
           <label htmlFor="username">
-            <span className="labelTitle color-dark-two">Enter a unique username!</span>
+            <span className="font-size-1rem color-dark-two">Enter a unique username!</span>
             <br />
             <input
               autoFocus
-              className={`usernameInput ${username.length >= 2 && username.length <= 8 ? 'validUsername' : 'invalidUsername'}`}
+              className={`margin-bot-20 font-size-1rem padding-5 margin-top-5 ${username.length >= 2 && username.length <= 8 ? 'border-green' : 'border-red'}`}
               id="username"
               type="text"
               value={username}
@@ -62,7 +62,7 @@ const Index = () => {
             />
           </label>
           <br />
-          <input className="submit background-green" type="submit" value="Connect" onClick={connect} />
+          <input className="button padding-10 border-radius-10 background-green width-90" type="submit" value="Connect" onClick={connect} />
         </form>
       </div>
       <div className="background-white margin-20 border-radius-20 text-align-center">
@@ -71,7 +71,9 @@ const Index = () => {
           <p>Play with friends and with up to 4 players!</p>
           <p>Includes a point tracking system!</p>
           <br />
-          <p>In Development: Game Version - Vietnamese + Game ending when reaching point threshold</p>
+          <p>
+            In Development: Game Version - Vietnamese + Game ending when reaching point threshold
+          </p>
         </div>
       </div>
 
@@ -83,44 +85,7 @@ const Index = () => {
       />
       <style jsx>
         {`
-          .page {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-          }
 
-          form .title {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-          }
-
-          .usernameInput {
-            margin-top: 5px;
-            padding: 5px;
-            font-size: 1rem;
-          }
-
-          .labelTitle {
-            font-size: 1rem;
-          }
-
-          .validUsername {
-            border: 3px solid green;
-          }
-
-          .invalidUsername {
-            border: 3px solid red;
-          }
-
-          .submit {
-            margin-top: 20px;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            width: 90%;
-            cursor: pointer;
-          }
         `}
       </style>
     </div>

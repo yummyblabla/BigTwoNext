@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
-import * as Color from '../../constants/colors';
+import variables from '../../styles.scss';
 
 const RoomList = ({
   rooms, joinRoom,
 }) => {
   return (
-    <div className="roomList">
-      <h3 className="title">{`Rooms (${Object.keys(rooms).length})`}</h3>
-      <div className="list">
+    <div className="flex-column border-black background-dark-two border-radius-10 roomList">
+      <h3 className="padding-left-20 color-dark-four">{`Rooms (${Object.keys(rooms).length})`}</h3>
+      <div className="list overflow-y">
         {Object.keys(rooms).map((room) => {
           const {
             roomName, players, maxPlayers, gameVersion, started,
@@ -15,11 +15,11 @@ const RoomList = ({
           return (
             <div
               key={room}
-              className="room"
+              className="border-black margin-5 padding-5 background-dark-one room"
               onClick={() => joinRoom(roomName)}
               aria-hidden="true"
             >
-              <span className="roomInfo">
+              <span className="color-dark-four">
                 {`${roomName} [${players.length}/${maxPlayers}] (${gameVersion})${started ? '[Started]' : ''}`}
               </span>
             </div>
@@ -30,35 +30,19 @@ const RoomList = ({
       <style jsx>
         {`
           .roomList {
-            display: flex;
-            flex-direction: column;
-            border: 1px solid black;
             min-width: 300px;
             width: 300px;
             max-width: 300px;
-            background-color: ${Color.DARK_TWO};
-            border-radius: 10px;
-          }
-          .title {
-            margin-left: 10px;
-            color: ${Color.DARK_FOUR}
           }
           .list {
-            overflow-y: auto;
             max-height: 80vh;
           }
           .room {
-            border: 1px solid black;
-            background-color: ${Color.DARK_ONE};
-            margin: 5px;
-            padding: 5px;
+            background-color: ${variables.dark_one_color};
             cursor: pointer;
           }
           .room:hover {
-            background-color: ${Color.DARK_THREE};
-          }
-          .roomInfo {
-            color: ${Color.DARK_FOUR};
+            background-color: ${variables.dark_three_color};
           }
         `}
       </style>

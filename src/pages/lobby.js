@@ -13,8 +13,6 @@ import {
 } from '../../server/modules/Helpers/Constants';
 import withStateRef from '../components/HOC/withStateRef';
 
-import * as Color from '../constants/colors';
-
 import CreateRoomModal from '../components/Modals/CreateRoom';
 import ErrorModal from '../components/Modals/ErrorModal';
 import PlayerList from '../components/Lobby/PlayerList';
@@ -216,7 +214,7 @@ const Lobby = ({ useStateRef }) => {
   }, []);
 
   return (
-    <div className="container">
+    <div className="flex-column">
       <Head>
         <title>Big Two Lobby</title>
       </Head>
@@ -224,12 +222,18 @@ const Lobby = ({ useStateRef }) => {
         username={username}
         disconnect={disconnect}
       />
-      <div className="content">
-        <div className="buttonContainer">
-          <button type="button" className="createRoomButton" onClick={handleOpenCreateRoomModal}>Create room</button>
+      <div className="flex-column align-center">
+        <div className="flex-row button-container">
+          <button
+            type="button"
+            className="background-green border-radius-10 font-size-1rem width-200px"
+            onClick={handleOpenCreateRoomModal}
+          >
+            Create room
+          </button>
         </div>
 
-        <div className="mainContainer">
+        <div className="flex-row">
           <RoomList
             rooms={rooms}
             joinRoom={handleJoinRoom}
@@ -266,52 +270,13 @@ const Lobby = ({ useStateRef }) => {
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
       />
-      <style jsx global>
-        {`
-          body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial;
-            background-color: ${Color.DARK_THREE};
-          }
-        `}
-      </style>
+
       <style jsx>
         {`
-          .container {
-            display: flex;
-            flex-direction: column;
-          }
-          .buttonContainer {
+          .button-container {
             height: 50px;
-            display: flex;
             margin: 10px 0;
           }
-          p {
-            font-size: 2rem;
-          }
-          .content {
-            align-items: center;
-            display: flex;
-            flex-direction: column;
-          }
-          .mainContainer {
-            display: flex;
-          }
-          .createRoomButton {
-            background-color: ${Color.GREEN};
-            width: 100px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-          }
-          .createRoomButton:hover {
-            background-color: ${Color.GREEN_HOVER};
-          }
-          button {
-            cursor: pointer;
-          }
-
         `}
       </style>
     </div>

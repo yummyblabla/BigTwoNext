@@ -3,9 +3,6 @@ import PropTypes from 'prop-types';
 
 import LargeModalHOC from '../HOC/LargeModalHOC';
 
-import * as Color from '../../constants/colors';
-
-
 const RoomLobby = ({
   currentRoom, leaveRoom, startGame, username, inRoomLobby, setModalOpen,
 }) => {
@@ -24,13 +21,13 @@ const RoomLobby = ({
   const playerHolders = [...Array(maxPlayers).keys()];
 
   return (
-    <div className="roomLobby">
-      <h3>{`Room Name: ${roomName}`}</h3>
+    <div className="background-dark-four color-dark-one border-radius-20 padding-20 padding-left-30 roomLobby">
+      <p className="font-size-2rem">{`Room Name: ${roomName}`}</p>
       {playerHolders.map((holder) => (
-        <div key={holder} className="holder">
+        <div key={holder} className="margin-bot-5 margin-top-5">
           <span>{`${holder + 1}.`}</span>
           {players[holder] && (
-            <span className="playerName">{players[holder].username}</span>
+            <span className="padding-left-10">{players[holder].username}</span>
           )}
         </div>
       ))}
@@ -43,19 +40,7 @@ const RoomLobby = ({
       <style jsx>
         {`
           .roomLobby {
-            padding: 20px 30px;
-            border: 1px solid black;
-            margin-top: 30px;
             height: 400px;
-            background-color: ${Color.DARK_FOUR};
-            color: ${Color.DARK_ONE};
-            border-radius: 20px;
-          }
-          .holder {
-            margin: 5px 0px;
-          }
-          .playerName {
-            margin-left: 10px;
           }
           .leaveButton {
 
