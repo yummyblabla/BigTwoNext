@@ -21,7 +21,7 @@ $white-color: #ffffff;
 body {
   margin: 0;
   font-family: 'Roboto', sans-serif;
-  background-color: $dark-one-color;
+  // background-color: $dark-one-color;
 }
 
 // p {
@@ -77,6 +77,15 @@ button, .button  {
   padding: 30px;
 }
 
+.padding-top-10 {
+  padding-top: 10px;
+}
+.padding-top-20 {
+  padding-top: 20px;
+}
+.padding-top-30 {
+  padding-top: 30px;
+}
 .padding-left-10 {
   padding-left: 10px;
 }
@@ -203,6 +212,9 @@ button, .button  {
 }
 .border-black {
   border: 1px solid #000000;
+}
+.border-dark-one {
+  border: 2px solid $dark-one-color;
 }
 
 .width-90 {
