@@ -42,11 +42,11 @@ const CreateRoom = ({
       {/* <button type="button" onClick={resetRoomState}>Set Defaults</button> */}
       <form>
         <label htmlFor="roomName">
-          <span className="margin-bot-10">Room Name</span>
+          <span className="margin-bottom-10">Room Name</span>
           <input value={roomName} onChange={(e) => setRoomName(e.target.value)} />
         </label>
         <label htmlFor="maxPlayers">
-          <span className="margin-bot-10">Number of Players:</span>
+          <span className="margin-bottom-10">Number of Players:</span>
           <select value={maxPlayers} onChange={(e) => setMaxPlayers(e.target.value)}>
             {NUMBER_OF_PLAYERS.map((num) => (
               <option key={num} value={num}>{num}</option>
@@ -54,7 +54,7 @@ const CreateRoom = ({
           </select>
         </label>
         <label htmlFor="bigTwoVersion">
-          <span className="margin-bot-10">Version:</span>
+          <span className="margin-bottom-10">Version:</span>
           <select value={gameVersion} onChange={(e) => setGameVersion(e.target.value)}>
             {GAME_VERSIONS.map((version) => (
               <option key={version} value={version}>{version}</option>

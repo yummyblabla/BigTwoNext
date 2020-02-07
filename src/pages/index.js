@@ -6,6 +6,7 @@ import io from 'socket.io-client';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Link from 'next/link';
 
 import withRedux from '../redux/redux';
 import { setUsername, setSocket } from '../redux/actionCreators';
@@ -49,18 +50,17 @@ const Index = () => {
         <link rel="apple-touch-icon" href="favicon.ico" />
       </Head>
 
-      <div className="background-white margin-20 border-radius-20 padding-20 padding-top-10 border-dark-one">
-        <form className="text-align-center margin-20">
-          <p className="font-size-3rem margin-bot-10 color-dark-two">
-            BigTwo.io
-          </p>
-          <br />
+      <div className="background-white margin-20 border-radius-20 padding-30 padding-top-10 padding-bottom-20 border-dark-one">
+        <h1 className="font-size-3rem text-align-center color-dark-two margin-bottom-30">
+          BigTwo.io
+        </h1>
+        <form className="text-align-center margin-20 margin-top-10">
           <label htmlFor="username">
             <span className="font-size-1rem color-dark-two">Enter a unique username!</span>
             <br />
             <input
               autoFocus
-              className={`margin-bot-20 font-size-1rem padding-5 margin-top-5 ${username.length >= 2 && username.length <= 8 ? 'border-green' : 'border-red'}`}
+              className={`margin-bottom-20 font-size-1rem padding-5 margin-top-5 ${username.length >= 2 && username.length <= 8 ? 'border-green' : 'border-red'}`}
               id="username"
               type="text"
               value={username}
@@ -83,21 +83,40 @@ const Index = () => {
           </p>
         </div>
       </div>
-      <a
-        className="ahref"
-        href="https://unsplash.com/@amandagraphc?utm_medium=referral&amp;utm_campaign=photographer-credit&amp;utm_content=creditBadge"
-        target="_blank"
-        rel="noopener noreferrer"
-        title="Download free do whatever you want high-resolution photos from Amanda Jones"
-      >
-        <span style={{display: 'inline-block', padding: '2px 3px' }}>
-          <svg xmlns="http://www.w3.org/2000/svg" style={{ height: '12px', width: 'auto', position: 'relative;', verticalAlign: 'middle', top: '2px', fill: 'white' }} viewBox="0 0 32 32">
-            <title>unsplash-logo</title>
-            <path d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z" />
-          </svg>
-        </span>
-        <span style={{display: 'inline-block', padding: '2px 3px' }}>Background Image By: Amanda Jones</span>
-      </a>
+
+      <div className="footer color-white flex-row align-center justify-space-between width-100">
+        <div className="background-white padding-10 margin-left-10 margin-bottom-10 border-dark-one border-radius-20">
+          <Link href="/about">
+            <a className="color-dark-two">
+              About
+            </a>
+          </Link>
+        </div>
+
+        <a
+          style={{
+            backgroundColor: 'black', color: 'white', textDecoration: 'none', padding: '4px 6px', fontFamily: '-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif', fontSize: '12px', fontWeight: 'bold', lineHeight: 1.2, display: 'inline-block', borderRadius: '3px',
+          }}
+          href="https://unsplash.com/@amandagraphc?utm_medium=referral&amp;utm_campaign=photographer-credit&amp;utm_content=creditBadge"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Download free do whatever you want high-resolution photos from Amanda Jones"
+        >
+          <span style={{ display: 'inline-block', padding: '2px 3px' }}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              style={{
+                height: '12px', width: 'auto', position: 'relative', verticalAlign: 'middle', top: '2px', fill: 'white',
+              }}
+              viewBox="0 0 32 32"
+            >
+              <title>unsplash-logo</title>
+              <path d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z" />
+            </svg>
+          </span>
+          <span style={{ display: 'inline-block', padding: '2px 3px' }}>Image By: Amanda Jones</span>
+        </a>
+      </div>
 
       <IndexErrorModal
         errorModal={errorModal}
@@ -113,9 +132,14 @@ const Index = () => {
             background-repeat: no-repeat;
             width: 100vw;
             height: 100vh;
+            overflow-y: auto;
           }
           .ahref {
             background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px
+          }
+          .footer {
+            position: absolute;
+            bottom: 0px;
           }
         `}
       </style>

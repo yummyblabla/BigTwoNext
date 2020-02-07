@@ -24,7 +24,7 @@ const RoomLobby = ({
     <div className="background-dark-four color-dark-one border-radius-20 padding-20 padding-left-30 roomLobby">
       <p className="font-size-2rem">{`Room Name: ${roomName}`}</p>
       {playerHolders.map((holder) => (
-        <div key={holder} className="margin-bot-5 margin-top-5">
+        <div key={holder} className="margin-bottom-5 margin-top-5">
           <span>{`${holder + 1}.`}</span>
           {players[holder] && (
             <span className="padding-left-10">{players[holder].username}</span>
