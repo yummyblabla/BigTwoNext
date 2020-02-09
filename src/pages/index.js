@@ -128,7 +128,7 @@ const Index = () => {
       <style jsx>
         {`
           .page {
-            background-image: url(splash.webp);
+            background-image: url(splash.jpeg);
             background-size: cover;
             background-repeat: no-repeat;
             width: 100vw;
