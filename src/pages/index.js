@@ -40,14 +40,15 @@ const Index = () => {
   return (
     <div className="flex-column justify-center align-center page">
       <Head>
-        <title>BigTwo.io</title>
+        <title>BigTwo.io | Play Big Two</title>
         <script data-ad-client="ca-pub-8458686627075146" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" />
         <meta charSet="UTF-8" />
-        <meta name="description" content="BigTwo HTML5 Card Game with Socket.io" />
+        <meta name="description" content="BigTwo HTML5 Card Game with Socket.io. Play with up to 4 players and see who is better in this classic card game!" />
         <meta name="keywords" content="BigTwo,Big2,Big Two,IO,Cards,Game,Canvas,WebGL,PixiJS,HTML5,Socket.io,PlayBigTwo,Play BigTwo,Play Big Two,Multiplayer,Card Game,Asian,Chinese,Vietnamese" />
         <meta name="author" content="Derrick Lee" />
         <link rel="icon" type="image/png" href="favicon.ico" />
         <link rel="apple-touch-icon" href="favicon.ico" />
+        <link rel="canonical" href="https://bigtwo.io" />
       </Head>
 
       <div className="background-white margin-20 border-radius-20 padding-30 padding-top-10 padding-bottom-20 border-dark-one">
@@ -110,7 +111,7 @@ const Index = () => {
               }}
               viewBox="0 0 32 32"
             >
-              <title>unsplash-logo</title>
+              <p>unsplash-logo</p>
               <path d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z" />
             </svg>
           </span>

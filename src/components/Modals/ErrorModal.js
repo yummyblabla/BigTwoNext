@@ -23,7 +23,7 @@ const IndexErrorModal = ({
       <button className="closeButton" type="button" onClick={handleCloseModal}>
         Close
       </button>
-      <h1>Attention!</h1>
+      <h2>Attention!</h2>
       <p>
         {errorMessage}
       </p>

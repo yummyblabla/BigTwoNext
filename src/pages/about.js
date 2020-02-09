@@ -5,13 +5,14 @@ const About = () => {
   return (
     <div>
       <Head>
-        <title>BigTwo.io | About</title>
+        <title>BigTwo.io | About the Developer</title>
         <meta charSet="UTF-8" />
-        <meta name="description" content="BigTwo HTML5 Card Game with Socket.io" />
+        <meta name="description" content="BigTwo HTML5 Card Game with Socket.io. Made by Derrick Lee, a developer in Vancouver BC. Check out his other content in his website or LinkedIn" />
         <meta name="keywords" content="BigTwo,Big2,Big Two,IO,Cards,Game,Canvas,WebGL,PixiJS,HTML5,Socket.io,PlayBigTwo,Play BigTwo,Play Big Two,Multiplayer,Card Game,Asian,Chinese,Vietnamese" />
         <meta name="author" content="Derrick Lee" />
         <link rel="icon" type="image/png" href="favicon.ico" />
         <link rel="apple-touch-icon" href="favicon.ico" />
+        <link rel="canonical" href="https://bigtwo.io/about" />
       </Head>
       <h1 className="text-align-center color-dark-four margin-top-30">
         About Me
