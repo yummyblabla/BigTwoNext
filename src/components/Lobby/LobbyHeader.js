@@ -9,7 +9,7 @@ const LobbyHeader = ({
     <div className="dropdown">
       <span className="color-dark-four">{username}</span>
       <div className="dropdown-content">
-        <button type="button" className="dropdown-button color-dark-four">View Profile (doesn't work)</button>
+        <button type="button" className="dropdown-button color-dark-four">View Profile (in development)</button>
         <button type="button" className="dropdown-button color-dark-four" onClick={disconnect}>Log out</button>
       </div>
     </div>

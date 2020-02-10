@@ -104,7 +104,7 @@ const CreateRoom = ({
 CreateRoom.propTypes = {
   createRoom: PropTypes.func.isRequired,
   setModalOpen: PropTypes.func.isRequired,
-  createRoomModal: PropTypes.func.isRequired,
+  createRoomModal: PropTypes.bool.isRequired,
   setCreateRoomModal: PropTypes.func.isRequired,
 };
 

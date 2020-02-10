@@ -7,6 +7,7 @@
     "dev": "nodemon --exec babel-node --watch server server/index.js",
     "nextbuild": "next build",
     "build": "babel server -d dist",
+    "babelstart": "node dist/index.js",
     "start": "next start",
     "test": "jest"
   },

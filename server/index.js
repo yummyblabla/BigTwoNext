@@ -111,6 +111,18 @@ nextApp.prepare().then(() => {
     });
   });
 
+  app.get('/api/connectAsGuest', (req, res) => {
+    let randomInteger = Math.floor(Math.random() * 9999);
+    let username = `Guest_${randomInteger}`;
+    while (usernames[username]) {
+      randomInteger = Math.floor(Math.random() * 9999);
+      username = `Guest_${randomInteger}`;
+    }
+    return res.status(200).json({
+      username,
+    });
+  });
+
   app.get('*', (req, res) => nextAppHandler(req, res));
 
   server.listen(port, (err) => {

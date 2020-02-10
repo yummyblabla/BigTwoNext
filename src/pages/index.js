@@ -10,6 +10,7 @@ import Link from 'next/link';
 
 import withRedux from '../redux/redux';
 import { setUsername, setSocket } from '../redux/actionCreators';
+import variables from '../styles.scss';
 
 import IndexErrorModal from '../components/Modals/ErrorModal';
 
@@ -37,6 +38,17 @@ const Index = () => {
       });
   };
 
+  const connectAsGuest = (e) => {
+    e.preventDefault();
+    fetch('/api/connectAsGuest')
+      .then((response) => response.json())
+      .then(({ username: $username }) => {
+        dispatch(setSocket(io(), $username));
+        dispatch(setUsername($username));
+        router.push('/lobby');
+      });
+  };
+
   return (
     <div className="flex-column justify-center align-center page">
       <Head>
@@ -46,6 +58,7 @@ const Index = () => {
         <meta name="description" content="BigTwo HTML5 Card Game with Socket.io. Play with up to 4 players and see who is better in this classic card game!" />
         <meta name="keywords" content="BigTwo,Big2,Big Two,IO,Cards,Game,Canvas,WebGL,PixiJS,HTML5,Socket.io,PlayBigTwo,Play BigTwo,Play Big Two,Multiplayer,Card Game,Asian,Chinese,Vietnamese" />
         <meta name="author" content="Derrick Lee" />
+        <meta name="language" content="en" />
         <link rel="icon" type="image/png" href="favicon.ico" />
         <link rel="apple-touch-icon" href="favicon.ico" />
         <link rel="canonical" href="https://bigtwo.io" />
@@ -72,7 +85,13 @@ const Index = () => {
           <br />
           <input className="button padding-10 border-radius-10 background-green width-90" type="submit" value="Connect" onClick={connect} />
         </form>
+        <div className="text-align-center">
+          <button type="button" className="text-align-center border-radius-10 padding-10 background-dark-three button-random color-white" onClick={connectAsGuest}>
+            Connect as Guest
+          </button>
+        </div>
       </div>
+
       <div className="background-white margin-20 border-radius-20 text-align-center border-dark-one">
         <div className="margin-20">
           <a className="title" href="https://en.wikipedia.org/wiki/Big_two">What is BigTwo?</a>
@@ -135,12 +154,12 @@ const Index = () => {
             height: 100vh;
             overflow-y: auto;
           }
-          .ahref {
-            background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px
-          }
           .footer {
             position: absolute;
             bottom: 0px;
+          }
+          .button-random:hover {
+            background-color: ${variables.dark_two_color};
           }
         `}
       </style>

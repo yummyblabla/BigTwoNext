@@ -19,6 +19,7 @@ import PlayerList from '../components/Lobby/PlayerList';
 import RoomList from '../components/Lobby/RoomList';
 import RoomLobby from '../components/Modals/RoomLobby';
 import LobbyHeader from '../components/Lobby/LobbyHeader';
+import NeedConnectModal from '../components/Modals/NeedConnectModal';
 
 /**
  * Lobby Page.
@@ -45,6 +46,8 @@ const Lobby = ({ useStateRef }) => {
 
   const [errorMessage, setErrorMessage] = useState('');
   const [errorModal, setErrorModal] = useState(false);
+
+  const [noConnectModal, setNoConnectModal] = useState(false);
 
   const handleStartGameSuccess = () => {
     router.push('/game');
@@ -180,7 +183,8 @@ const Lobby = ({ useStateRef }) => {
 
   useEffect(() => {
     if (socket === null) {
-      router.push('/');
+      setNoConnectModal(true);
+      // router.push('/');
     } else {
       socket.on('getLobbyList', handleSetPlayers);
       socket.on('getRoomList', handleSetRooms);
@@ -216,7 +220,15 @@ const Lobby = ({ useStateRef }) => {
   return (
     <div className="flex-column">
       <Head>
-        <title>Big Two Lobby</title>
+        <title>Big Two.io | Lobby</title>
+        <meta charSet="UTF-8" />
+        <meta name="description" content="BigTwo.io Lobby. Create and join rooms, invite your friends to play a game of BigTwo with up to 4 people!" />
+        <meta name="keywords" content="BigTwo,Big2,Big Two,IO,Cards,Game,Canvas,WebGL,PixiJS,HTML5,Socket.io,PlayBigTwo,Play BigTwo,Play Big Two,Multiplayer,Card Game,Asian,Chinese,Vietnamese" />
+        <meta name="author" content="Derrick Lee" />
+        <meta name="language" content="en" />
+        <link rel="icon" type="image/png" href="favicon.ico" />
+        <link rel="apple-touch-icon" href="favicon.ico" />
+        <link rel="canonical" href="https://bigtwo.io/lobby" />
       </Head>
       <LobbyHeader
         username={username}
@@ -269,6 +281,11 @@ const Lobby = ({ useStateRef }) => {
         setErrorModal={setErrorModal}
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
+      />
+      <NeedConnectModal
+        modal={noConnectModal}
+        setModal={setNoConnectModal}
+        router={router}
       />
 
       <style jsx>
