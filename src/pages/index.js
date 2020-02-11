@@ -24,14 +24,14 @@ const Index = () => {
 
   const connect = (e) => {
     e.preventDefault();
-    fetch(`/api/checkUserTaken?username=${username}`)
+    fetch(`${process.env.socketUrl}/api/checkUserTaken?username=${username}`)
       .then((response) => response.json())
       .then(({ userTaken, message }) => {
         if (userTaken) {
           setErrorMessage(message);
           setErrorModal(true);
         } else {
-          dispatch(setSocket(io(), username));
+          dispatch(setSocket(io(`${process.env.socketUrl}`), username));
           dispatch(setUsername(username));
           router.push('/lobby');
         }
@@ -40,10 +40,10 @@ const Index = () => {
 
   const connectAsGuest = (e) => {
     e.preventDefault();
-    fetch('/api/connectAsGuest')
+    fetch(`${process.env.socketUrl}/api/connectAsGuest`)
       .then((response) => response.json())
       .then(({ username: $username }) => {
-        dispatch(setSocket(io(), $username));
+        dispatch(setSocket(io(`${process.env.socketUrl}`), $username));
         dispatch(setUsername($username));
         router.push('/lobby');
       });

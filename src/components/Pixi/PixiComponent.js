@@ -7,10 +7,10 @@ import { useRouter } from 'next/router';
 
 import * as Render from './Render';
 import * as GameVariables from '../Game/GameVariables';
-import search from '../../../server/modules/Helpers/Search';
-import GameClient from '../../../server/modules/GameClient';
-import Opponent from '../../../server/modules/Opponent';
-import Card from '../../../server/modules/Card';
+import search from '../../../socketio/modules/Helpers/Search';
+import GameClient from '../../../socketio/modules/GameClient';
+import Opponent from '../../../socketio/modules/Opponent';
+import Card from '../../../socketio/modules/Card';
 
 const APP_WIDTH = 800;
 const APP_HEIGHT = 600;

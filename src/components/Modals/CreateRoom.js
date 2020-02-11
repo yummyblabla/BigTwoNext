@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { NUMBER_OF_PLAYERS, GAME_VERSIONS, CHINESE_VERSION } from '../../../server/modules/Helpers/Constants';
+import { NUMBER_OF_PLAYERS, GAME_VERSIONS, CHINESE_VERSION } from '../../../socketio/modules/Helpers/Constants';
 import LargeModalHOC from '../HOC/LargeModalHOC';
 
 import variables from '../../styles.scss';

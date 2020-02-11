@@ -5,4 +5,8 @@ module.exports = withImages(withSass({
   devIndicators: {
     autoPrerender: false,
   },
+  env: {
+    socketUrl: 'https://api.bigtwo.io',
+    // socketUrl: 'http://localhost:8000',
+  },
 }));

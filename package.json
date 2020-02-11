@@ -5,9 +5,13 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec babel-node --watch server server/index.js",
+    "nextdev": "next",
     "nextbuild": "next build",
     "build": "babel server -d dist",
+    "buildsocket": "babel socketio -d dist/socketio",
     "babelstart": "node dist/index.js",
+    "devsocket": "nodemon --exec babel-node --watch socketio socketio/index.js",
+    "startsocket": "node dist/socketio/index.js",
     "start": "next start",
     "test": "jest"
   },
@@ -17,6 +21,7 @@
   "dependencies": {
     "@zeit/next-css": "^1.0.1",
     "@zeit/next-sass": "^1.0.1",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "isomorphic-unfetch": "^3.0.0",
     "next": "^9.1.5",
