@@ -63,34 +63,50 @@ const Index = () => {
         <link rel="apple-touch-icon" href="favicon.ico" />
         <link rel="canonical" href="https://bigtwo.io" />
       </Head>
+      <div className="flex-row flex-wrap justify-center mobile">
+        <div className="background-white margin-20 border-radius-20 padding-30 padding-bottom-20 border-dark-one secondary width-200px text-align-center">
+          <Link href="/about">
+            <a className="color-dark-two">
+              About the Developer
+            </a>
+          </Link>
+        </div>
 
-      <div className="background-white margin-20 border-radius-20 padding-30 padding-top-10 padding-bottom-20 border-dark-one">
-        <h1 className="font-size-3rem text-align-center color-dark-two margin-bottom-30">
-          BigTwo.io
-        </h1>
-        <form className="text-align-center margin-20 margin-top-10">
-          <label htmlFor="username">
-            <span className="font-size-1rem color-dark-two">Enter a unique username!</span>
+        <div className="background-white margin-20 border-radius-20 padding-30 padding-top-10 padding-bottom-20 border-dark-one main">
+          <h1 className="font-size-3rem text-align-center color-dark-two margin-bottom-30">
+            BigTwo.io
+          </h1>
+          <form className="text-align-center margin-20 margin-top-10">
+            <label htmlFor="username">
+              <span className="font-size-1rem color-dark-two">Enter a unique username!</span>
+              <br />
+              <input
+                autoFocus
+                className={`margin-bottom-20 font-size-1rem padding-5 margin-top-5 ${username.length >= 2 && username.length <= 8 ? 'border-green' : 'border-red'}`}
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => set$Username(e.target.value)}
+                placeholder="Username"
+              />
+            </label>
             <br />
-            <input
-              autoFocus
-              className={`margin-bottom-20 font-size-1rem padding-5 margin-top-5 ${username.length >= 2 && username.length <= 8 ? 'border-green' : 'border-red'}`}
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => set$Username(e.target.value)}
-              placeholder="Username"
-            />
-          </label>
-          <br />
-          <input className="button padding-10 border-radius-10 background-green width-90" type="submit" value="Connect" onClick={connect} />
-        </form>
-        <div className="text-align-center">
-          <button type="button" className="text-align-center border-radius-10 padding-10 background-dark-three button-random color-white" onClick={connectAsGuest}>
-            Connect as Guest
-          </button>
+            <input className="button padding-10 border-radius-10 background-green width-90" type="submit" value="Connect" onClick={connect} />
+          </form>
+          <div className="text-align-center">
+            <button type="button" className="text-align-center border-radius-10 padding-10 background-dark-three button-random color-white" onClick={connectAsGuest}>
+              Connect as Guest
+            </button>
+          </div>
+        </div>
+        <div className="background-white margin-20 border-radius-20 padding-30 padding-bottom-20 border-dark-one width-200px secondary">
+          <a href="https://discord.gg/dxHhmVv" target="_blank" rel="noopener noreferrer" className="flex-row color-dark-two">
+            <img src="/Discord-Logo-Color.svg" alt="Discord" width="50" height="50" />
+            <p>Join Discord</p>
+          </a>
         </div>
       </div>
+
 
       <div className="background-white margin-20 border-radius-20 text-align-center border-dark-one">
         <div className="margin-20">
@@ -105,14 +121,6 @@ const Index = () => {
       </div>
 
       <div className="footer color-white flex-row align-center justify-space-between width-100">
-        <div className="background-white padding-10 margin-left-10 margin-bottom-10 border-dark-one border-radius-20">
-          <Link href="/about">
-            <a className="color-dark-two">
-              About
-            </a>
-          </Link>
-        </div>
-
         <a
           style={{
             backgroundColor: 'black', color: 'white', textDecoration: 'none', padding: '4px 6px', fontFamily: '-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif', fontSize: '12px', fontWeight: 'bold', lineHeight: 1.2, display: 'inline-block', borderRadius: '3px',
@@ -160,6 +168,24 @@ const Index = () => {
           }
           .button-random:hover {
             background-color: ${variables.dark_two_color};
+          }
+
+          @media only screen and (max-width: 600px) {
+              .page {
+                height: 100%;
+              }
+              .mobile {
+                flex-direction: column !important;
+              }
+              .main {
+                order: 0;
+              }
+              .secondary {
+                order: 1;
+              }
+              .footer {
+                position: relative;
+              }
           }
         `}
       </style>
