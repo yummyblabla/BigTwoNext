@@ -6,7 +6,7 @@ module.exports = withImages(withSass({
     autoPrerender: false,
   },
   env: {
-    // socketUrl: 'https://api.bigtwo.io',
-    socketUrl: 'http://localhost:8000',
+    socketUrl: 'https://api.bigtwo.io',
+    // socketUrl: 'http://localhost:8000',
   },
 }));
