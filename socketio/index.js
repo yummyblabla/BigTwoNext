@@ -1,5 +1,5 @@
-import gameListeners from './listeners/gameListeners';
-import lobbyListeners from './listeners/lobbyListeners';
+// import gameListeners from './listeners/gameListeners';
+// import lobbyListeners from './listeners/lobbyListeners';
 
 const app = require('express')();
 const server = require('http').Server(app);
@@ -18,8 +18,8 @@ const games = {};
 const lobby = io.to('/lobby');
 
 io.on('connection', (socket) => {
-  lobbyListeners(lobby, socket, io, rooms, clients, usernames, games);
-  gameListeners(lobby, socket, io, rooms, clients, games);
+  // lobbyListeners(lobby, socket, io, rooms, clients, usernames, games);
+  // gameListeners(lobby, socket, io, rooms, clients, games);
   console.log('someone connected');
 
   /**

@@ -1,65 +1,49 @@
-import Player from '../../server/modules/Player';
-import {
-  USER_LOBBY_STATE, USER_IN_ROOM_STATE, USER_IN_GAME_STATE,
-} from '../../server/modules/Helpers/Constants';
+import PlayerFactory from '../../socketio/modules/users/player';
+import BigTwoFactory from '../../socketio/modules/room/bigTwoRoom';
+import USER_STATES from '../../socketio/modules/users/userStates';
 
 let player;
+const roomName = 'Room Name';
+const maxUsers = 4;
+const room = BigTwoFactory.createRoom(roomName, maxUsers);
+const playerName = 'PlayerName';
+const socketId = 'socketId';
 
 beforeEach(() => {
-  player = new Player('New Player', 'SOCKETID1234');
+  player = PlayerFactory.createUser(playerName, socketId);
 });
 
-test('Player: get Room', () => {
-  expect(player.getRoom()).toBe(null);
+test('Player: attributes', () => {
+  expect(player.username()).toBe(playerName);
+  expect(player.socketId()).toBe(socketId);
+  expect(player.state()).toBe(USER_STATES.LOBBY_STATE);
+  expect(player.currentRoom()).toBe(null);
 });
 
-test('Player: join Room', () => {
-  const roomName = 'New Room';
-  player.joinRoom(roomName);
-
-  expect(player.getRoom()).toBe(roomName);
+test('Player: joinRoom', () => {
+  player.joinRoom(room);
+  expect(player.currentRoom()).toBe(room);
+  expect(player.state()).toBe(USER_STATES.ROOM_STATE);
 });
 
-test('Player: leave Room', () => {
-  const roomName = 'New Room';
-  player.joinRoom(roomName);
+test('Player: joinRoom -> leaveRoom', () => {
+  player.joinRoom(room);
   player.leaveRoom();
-  expect(player.getRoom()).toBe(null);
+  expect(player.currentRoom()).toBe(null);
+  expect(player.state()).toBe(USER_STATES.LOBBY_STATE);
 });
 
-test('Player: check Lobby State', () => {
-  expect(player.getState()).toBe(USER_LOBBY_STATE);
+test('Player: joinRoom -> startGame', () => {
+  player.joinRoom(room);
+  player.startGame();
+  expect(player.currentRoom()).toBe(room);
+  expect(player.state()).toBe(USER_STATES.GAME_STATE);
 });
 
-test('Player: check Lobby State 2', () => {
-  const roomName = 'New Room';
-  player.joinRoom(roomName);
+test('Player: joinRoom -> startGame -> leaveRoom', () => {
+  player.joinRoom(room);
+  player.startGame();
   player.leaveRoom();
-  expect(player.getState()).toBe(USER_LOBBY_STATE);
-});
-
-test('Player: check room state', () => {
-  const roomName = 'New Room';
-  player.joinRoom(roomName);
-  expect(player.checkIfInRoom()).toBe(true);
-});
-
-test('Player: check room state 2', () => {
-  const roomName = 'New Room';
-  player.joinRoom(roomName);
-  expect(player.getState()).toBe(USER_IN_ROOM_STATE);
-});
-
-test('Player: check game state', () => {
-  const roomName = 'New Room';
-  player.joinRoom(roomName);
-  player.startedGame();
-  expect(player.checkIfInRoom()).toBe(true);
-});
-
-test('Player: check game state 2', () => {
-  const roomName = 'New Room';
-  player.joinRoom(roomName);
-  player.startedGame();
-  expect(player.getState()).toBe(USER_IN_GAME_STATE);
+  expect(player.currentRoom()).toBe(null);
+  expect(player.state()).toBe(USER_STATES.LOBBY_STATE);
 });
