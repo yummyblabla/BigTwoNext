@@ -1,6 +1,6 @@
 import GuestFactory from '../../socketio/modules/users/guest';
 import BigTwoFactory from '../../socketio/modules/room/bigTwoRoom';
-import USER_STATES from '../../socketio/modules/users/userStates';
+import UserStateEnum from '../../socketio/modules/users/userStates';
 
 let guest;
 const roomName = 'Room Name';
@@ -19,28 +19,28 @@ test('Guest: attributes', () => {
   expect(parseInt(nameArray[1], 10) <= 9999).toBeTruthy();
   expect(parseInt(nameArray[1], 10) >= 0).toBeTruthy();
   expect(guest.socketId()).toBe(socketId);
-  expect(guest.state()).toBe(USER_STATES.LOBBY_STATE);
+  expect(guest.state()).toBe(UserStateEnum.LOBBY_STATE);
   expect(guest.currentRoom()).toBe(null);
 });
 
 test('Guest: joinRoom', () => {
   guest.joinRoom(room);
   expect(guest.currentRoom()).toBe(room);
-  expect(guest.state()).toBe(USER_STATES.ROOM_STATE);
+  expect(guest.state()).toBe(UserStateEnum.ROOM_STATE);
 });
 
 test('Guest: joinRoom -> leaveRoom', () => {
   guest.joinRoom(room);
   guest.leaveRoom();
   expect(guest.currentRoom()).toBe(null);
-  expect(guest.state()).toBe(USER_STATES.LOBBY_STATE);
+  expect(guest.state()).toBe(UserStateEnum.LOBBY_STATE);
 });
 
 test('Guest: joinRoom -> startGame', () => {
   guest.joinRoom(room);
   guest.startGame();
   expect(guest.currentRoom()).toBe(room);
-  expect(guest.state()).toBe(USER_STATES.GAME_STATE);
+  expect(guest.state()).toBe(UserStateEnum.GAME_STATE);
 });
 
 test('Guest: joinRoom -> startGame -> leaveRoom', () => {
@@ -48,5 +48,5 @@ test('Guest: joinRoom -> startGame -> leaveRoom', () => {
   guest.startGame();
   guest.leaveRoom();
   expect(guest.currentRoom()).toBe(null);
-  expect(guest.state()).toBe(USER_STATES.LOBBY_STATE);
+  expect(guest.state()).toBe(UserStateEnum.LOBBY_STATE);
 });

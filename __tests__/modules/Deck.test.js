@@ -1,15 +1,11 @@
-// import Deck from '../../server/modules/Deck';
+import DeckFactory from '../../socketio/modules/cards/deck';
 
-// const deck = new Deck();
+const deck = DeckFactory.createDeck();
 
-// test('New Deck', () => {
-//   expect(deck).toEqual(new Deck());
-// });
+test('Deck: cards', () => {
+  expect(deck.cards()).toHaveLength(52);
+});
 
-// test('Deck - getDeck()', () => {
-//   expect(deck.getCards()).toEqual(new Deck().getCards());
-// });
-
-// test('Deck - distribute()', () => {
-//   expect(deck.distribute()).toHaveLength(4);
-// });
+test('Deck: shuffle', () => {
+  expect(deck.shuffle()).toHaveLength(52);
+});

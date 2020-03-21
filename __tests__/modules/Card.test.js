@@ -55,3 +55,14 @@
 //     console.log(invalidCard);
 //   }).toThrow(RangeError);
 // });
+
+import CardFactory from '../../socketio/modules/cards/card';
+
+const rank = '10';
+const suit = 'S';
+const card = CardFactory.createCard({ rank, suit });
+
+test('Card: attributes', () => {
+  expect(card.rank()).toBe(rank);
+  expect(card.suit()).toBe(suit);
+});

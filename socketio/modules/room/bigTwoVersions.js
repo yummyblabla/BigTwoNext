@@ -1,9 +1,9 @@
 /**
  * Big Two Version enumerations.
  */
-const BIGTWO_VERSIONS = {
+const BigTwoVersionEnum = {
   CHINESE: 'Chinese',
   VIETNAMESE: 'Vietnamese',
 };
 
-export default BIGTWO_VERSIONS;
+export default BigTwoVersionEnum;

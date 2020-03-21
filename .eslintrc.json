@@ -29,6 +29,7 @@
         "no-console": "off",
         "no-prototype-builtins": "off",
         "react/react-in-jsx-scope": "off",
+        "max-classes-per-file": "off",
         "jest/no-disabled-tests": "warn",
         "jest/no-focused-tests": "error",
         "jest/no-identical-title": "error",

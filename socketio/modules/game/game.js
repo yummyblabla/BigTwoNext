@@ -1,5 +1,5 @@
-class Game {
-  constructor(roomName, users) {
+export default class Game {
+  constructor({ roomName, users }) {
     this.$roomName = roomName;
     this.$users = users;
     this.$readyStateCounter = 0;
@@ -42,6 +42,23 @@ Game.prototype.checkIfEmpty = function checkIfEmpty() {
 };
 
 /**
+ * Assigns the next user in Array as their turn.
+ * @return a User instance
+ */
+Game.prototype.goToNextPlayerTurn = function goToNextPlayerTurn() {
+  const currentPlayer = this.$currentPlayerTurn;
+  const index = this.players.findIndex((player) => player.getUsername() === currentPlayer);
+  let nextIndex;
+  if (index >= this.players.length - 1) {
+    nextIndex = 0;
+  } else {
+    nextIndex = index + 1;
+  }
+  this.$currentPlayerTurn = this.$users[nextIndex];
+  return this.$currentPlayerTurn;
+};
+
+/**
  * Remove user from the game.
  * @param user a User instance
  * @return a boolean whether or not the user was removed.
@@ -56,4 +73,13 @@ Game.prototype.removeUser = function removeUser(user) {
   return true;
 };
 
-export default Game;
+/**
+ * Check if the user exists in the current game.
+ * @param user a User instance
+ * @return a boolean whether the user exists in the game
+ */
+Game.prototype.checkUserExists = function checkUserExists(user) {
+  const socketId = user.socketId();
+  const index = this.$users.findIndex(($user) => $user.socketId() === socketId);
+  return index !== -1;
+};

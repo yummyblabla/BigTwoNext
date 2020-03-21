@@ -1,7 +1,7 @@
-const USER_STATES = {
+const UserStateEnum = {
   LOBBY_STATE: 'In Lobby',
   ROOM_STATE: 'In Room',
   GAME_STATE: 'In Game',
 };
 
-export default USER_STATES;
+export default UserStateEnum;

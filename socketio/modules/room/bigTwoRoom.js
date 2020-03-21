@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import Room from './room';
 
 /**
@@ -11,11 +10,13 @@ class BigTwoRoom extends Room {
    * @param {string} roomName a string
    * @param {int} maxUsers an int
    * @param {User} host a User instance
-   * @param {BigTwoVersion} version BigTwoVersion enumeration
+   * @param {BigTwoVersionEnum} gameVersion a BigTwoVersionEnum
    */
-  constructor(roomName, maxUsers, host, version) {
-    super(roomName, maxUsers, host);
-    this.$gameVersion = version;
+  constructor({
+    roomName, maxUsers, host, gameVersion,
+  }) {
+    super({ roomName, maxUsers, host });
+    this.$gameVersion = gameVersion;
   }
 }
 
@@ -28,14 +29,26 @@ BigTwoRoom.prototype.gameVersion = function getGameVersion() {
   return this.$gameVersion;
 };
 
+BigTwoRoom.prototype.extractInfoForGame = function extractInfoForGame() {
+  return {
+    roomName: this.$roomName,
+    users: this.$users,
+    gameVersion: this.$gameVersion,
+  };
+};
+
 /**
  * Factory that is responsible for creating BigTwo rooms.
  */
-class BigTwoFactory {
-  static createRoom(roomName, maxUsers, host, version) {
-    const bigTwoRoom = new BigTwoRoom(roomName, maxUsers, host, version);
+class BigTwoRoomFactory {
+  static createRoom({
+    roomName, maxUsers, host, gameVersion,
+  }) {
+    const bigTwoRoom = new BigTwoRoom({
+      roomName, maxUsers, host, gameVersion,
+    });
     return bigTwoRoom;
   }
 }
 
-export default BigTwoFactory;
+export default BigTwoRoomFactory;

@@ -2,14 +2,14 @@
  * A Room is an interface that is used to collect
  * a certain number of users in a container to start a game.
  */
-class Room {
+export default class Room {
   /**
    * Initializes the Room.
    * @param {string} roomName a string
    * @param {int} maxUsers an int
    * @param {User} host a User instance
    */
-  constructor(roomName, maxUsers, host) {
+  constructor({ roomName, maxUsers, host }) {
     this.$roomName = roomName;
     this.$maxUsers = maxUsers;
     this.$started = false;
@@ -97,5 +97,3 @@ Room.prototype.removeUser = function removeUser(user) {
   this.$users.splice(index, 1);
   return true;
 };
-
-export default Room;
